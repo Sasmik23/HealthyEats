@@ -24,7 +24,7 @@ backend:
         - nvm install 16
         - nvm use 16
         - npm install
-        - npx amplify push --yes
+        - npx ampx push --yes
   artifacts:
     baseDirectory: .
     files:
