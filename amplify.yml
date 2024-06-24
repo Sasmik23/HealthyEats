@@ -1,14 +1,25 @@
 version: 1.0
+backend:
+  phases:
+    preBuild:
+      commands:
+        - nvm install 18
+        - nvm use 18
+        - npm install
+    build:
+      commands:
+        - npx ampx push --yes
 frontend:
   phases:
     preBuild:
       commands:
-        - nvm install 16
-        - nvm use 16
+        - nvm install 18
+        - nvm use 18
         - npm install
     build:
       commands:
-        - npm run build
+        - mkdir -p build
+        - echo 'No build step needed for Expo app'
   artifacts:
     baseDirectory: build
     files:
@@ -16,17 +27,3 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
-
-backend:
-  phases:
-    build:
-      commands:
-        - nvm install 16
-        - nvm use 16
-        - npm install
-        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
-  artifacts:
-    baseDirectory: .
-    files:
-      - amplify/#current-cloud-backend/**/*
-
