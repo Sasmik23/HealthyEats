@@ -1,0 +1,32 @@
+version: 1.0
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm install 16
+        - nvm use 16
+        - npm install
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: build
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+
+backend:
+  phases:
+    build:
+      commands:
+        - nvm install 16
+        - nvm use 16
+        - npm install
+        - npx amplify push --yes
+  artifacts:
+    baseDirectory: .
+    files:
+      - amplify/#current-cloud-backend/**/*
+
