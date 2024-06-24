@@ -8,7 +8,7 @@ backend:
         - npm install
     build:
       commands:
-        - npx ampx push --yes
+        - npx amplify push --yes
 frontend:
   phases:
     preBuild:
