@@ -53,7 +53,7 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: "#fff",
     width: "100%",
-    marginBottom: 10,
+    marginBottom: 120,
   },
   recipeText: {
     fontSize: 16,
