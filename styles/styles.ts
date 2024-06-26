@@ -1,10 +1,15 @@
 import { StyleSheet } from "react-native";
+const maxWidth = 414; // This is a common width for mobile devices
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
     alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    maxWidth: maxWidth, // Set maximum width for the container
+    alignSelf: "center", // Center the container on larger screens
   },
   title: {
     fontSize: 24,
@@ -12,13 +17,14 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    width: "100%",
+    width: "100%", // Adjust the width to be 90% of the parent container
     padding: 15,
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 10,
     backgroundColor: "#fff",
     color: "black",
+    alignSelf: "center", // Ensure it is centered within its parent container
   },
   toggleButtons: {
     flexDirection: "row",
@@ -45,6 +51,8 @@ export const styles = StyleSheet.create({
   recipeScrollContainer: {
     flexGrow: 1,
     justifyContent: "flex-start",
+    alignItems: "center", // Make sure content is centered
+    width: "100%", // Ensure it takes the full width
   },
   recipeContainer: {
     flex: 1,
@@ -52,8 +60,9 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     backgroundColor: "#fff",
-    width: "100%",
-    marginBottom: 120,
+    width: "100%", // Make sure the width is set to 100% of its parent
+    marginBottom: 60, // You might adjust or remove this if it causes layout issues
+    maxWidth: 600, // Optionally set a max width for better web layout
   },
   recipeText: {
     fontSize: 16,
@@ -64,6 +73,7 @@ export const styles = StyleSheet.create({
   caloriesText: {
     fontSize: 16,
     marginBottom: 10,
+    fontWeight: "bold",
   },
   ratingText: {
     fontSize: 16,
@@ -139,5 +149,10 @@ export const styles = StyleSheet.create({
     height: 300,
     resizeMode: "contain",
     marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10,
   },
 });

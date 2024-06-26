@@ -11,6 +11,7 @@ import { styles } from '../styles/styles';
 import RecipeInput from './RecipeInput';
 //import Config from 'react-native-config';
 import { OPENAI_API_KEY } from '@env';
+import { Rating } from 'react-native-ratings';
 
 
 
@@ -35,9 +36,16 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
     const [rating, setRating] = useState<number | null>(null);
     const [userRating, setUserRating] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+    const [ratingSubmitted, setRatingSubmitted] = useState<boolean>(false);
 
     const fetchRecipe = async () => {
         setLoading(true);
+        // Clear previous recipe details
+        setRecipe('');
+        setCalories(null);
+        setRating(null);
+        setRatingSubmitted(false);
+
         try {
             if (searchByDish) {
                 await fetchRecipeByDishName();
@@ -51,7 +59,9 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
         }
     };
 
+
     const fetchRecipeByDishName = async () => {
+        setLoading(true);
         console.log("Fetching recipe for dish:", dishName);
         try {
             const { errors, data: existingRecipeData } = await client.models.Dish.list({
@@ -59,6 +69,11 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
             });
             if (errors) {
                 console.error('Error fetching recipes:', errors);
+                setRecipe('');
+                setCalories(null);
+                setRating(null);
+                setRatingSubmitted(false);
+                setLoading(false);
                 return;
             }
 
@@ -68,48 +83,40 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                 setCalories(existingRecipe.calories ?? null);
                 setRating(existingRecipe.rating ?? null);
                 console.log("Found existing recipe:", existingRecipe);
-                return;
-            }
-
-            const response = await axios.post(
-                'https://api.openai.com/v1/chat/completions',
-                {
+            } else {
+                const response = await axios.post('https://api.openai.com/v1/chat/completions', {
                     model: 'gpt-3.5-turbo',
                     messages: [{ role: 'user', content: `Provide a healthy recipe for ${dishName} for diabetics.` }],
                     max_tokens: 1000,
-                },
-                {
+                }, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
                     },
-                }
-            );
-            const fetchedRecipe = response.data.choices[0].message.content.trim();
-            const estimatedCalories = await getEstimatedCalories(fetchedRecipe);
-            setRecipe(fetchedRecipe);
-            setCalories(estimatedCalories);
-            console.log("Fetched recipe from GPT:", fetchedRecipe);
-
-            await client.models.Dish.create({
-                id: uuidv4(),
-                dishName: dishName,
-                recipe: fetchedRecipe,
-                rating: 0,
-                ratingCount: 0,
-                calories: estimatedCalories,
-            });
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.error('Axios error fetching recipe:', error.message);
-                if (error.response) {
-                    console.error('Error response data:', error.response.data);
-                }
-            } else {
-                console.error('Unexpected error fetching recipe:', error);
+                });
+                const fetchedRecipe = response.data.choices[0].message.content.trim();
+                const estimatedCalories = await getEstimatedCalories(fetchedRecipe);
+                setRecipe(fetchedRecipe);
+                setCalories(estimatedCalories);
+                setRating(0); // Reset rating since this is a new recipe
+                console.log("Fetched new recipe from GPT:", fetchedRecipe);
+                await client.models.Dish.create({
+                    id: uuidv4(),
+                    dishName: dishName,
+                    recipe: fetchedRecipe,
+                    rating: 0,
+                    ratingCount: 0,
+                    calories: estimatedCalories,
+                });
             }
+            setRatingSubmitted(false);
+        } catch (error) {
+            console.error('Error fetching recipe:', error);
+        } finally {
+            setLoading(false);
         }
     };
+
 
     const fetchRecipeByIngredients = async () => {
         console.log("Fetching recipe for ingredients:", ingredients);
@@ -159,6 +166,8 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                     setCalories(existingRecipe.calories ?? null);
                     setRating(existingRecipe.rating ?? null);
                     console.log("Found existing recipe with lower or equal calories:", existingRecipe);
+                    setRatingSubmitted(false);  // Reset the submit button state
+
                 }
             } else {
                 setRecipe(fetchedRecipe);
@@ -173,6 +182,8 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                     ratingCount: 0,
                     calories: estimatedCalories,
                 });
+                setRatingSubmitted(false);  // Reset the submit button state
+
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -266,11 +277,22 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
 
                 setRating(newRating);
                 setUserRating(null);
+                setRatingSubmitted(true);  // Disable the Submit button
                 console.log("Updated rating:", newRating);
             }
         } catch (error) {
             console.error('Error submitting rating:', error);
         }
+    };
+
+
+    const handleRatingCompleted = (rating: number) => {
+        setUserRating(rating);
+    };
+
+    const handleBuyIngredients = () => {
+        console.log("Redirecting to buy ingredients");
+        // Implementation for buying ingredients goes here
     };
 
     return (
@@ -291,17 +313,19 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                         <View style={styles.recipeContainer}>
                             <Text style={styles.recipeText}>{recipe}</Text>
                             <Text style={styles.caloriesText}>Estimated Calories: {calories ? calories : 'N/A'}</Text>
-                            <Text style={styles.ratingText}>Rating: {rating ? rating.toFixed(1) : 'Not rated yet'}</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Rate this recipe (1-5)"
-                                placeholderTextColor="#888"
-                                value={userRating ? userRating.toString() : ''}
-                                onChangeText={(text) => setUserRating(parseInt(text))}
-                                keyboardType="numeric"
+                            <Text style={styles.ratingText}>Average User Rating: {rating ? rating.toFixed(1) : 'Not rated yet'}</Text>
+                            <Rating
+                                type='star'
+                                ratingCount={5}
+                                imageSize={40}
+                                showRating
+                                onFinishRating={handleRatingCompleted}
                             />
-                            <View style={styles.submitButton}>
-                                <Button title="Submit Rating" onPress={submitRating} />
+                            <View style={styles.buttonContainer}>
+                                {!ratingSubmitted && (
+                                    <Button title="Submit Rating" onPress={submitRating} />
+                                )}
+                                <Button title="Buy Ingredients" onPress={handleBuyIngredients} />
                             </View>
                         </View>
                     </ScrollView>
@@ -309,6 +333,5 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
             )}
         </View>
     );
-};
-
+}
 export default RecipeFinder;
