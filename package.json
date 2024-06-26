@@ -7,7 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "build": "npx expo export:web",
+    "build": "npx expo build:web",
     "deploy:backend": "npx ampx pipeline-deploy --branch main --app-id your-amplify-app-id",
     "deploy:sandbox": "npx ampx sandbox"
   },
