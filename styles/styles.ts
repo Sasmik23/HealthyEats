@@ -1,15 +1,16 @@
 import { StyleSheet } from "react-native";
 const maxWidth = 414; // This is a common width for mobile devices
+import { Dimensions } from "react-native";
+
+const screenHeight = Dimensions.get("window").height;
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-    maxWidth: maxWidth, // Set maximum width for the container
-    alignSelf: "center", // Center the container on larger screens
+    justifyContent: "flex-start", // Aligns content to the top
+    alignItems: "center", // Centers content horizontally
+    width: "100%", // Takes full width of the parent
+    maxHeight: screenHeight, // Use the actual screen height
   },
   title: {
     fontSize: 24,
@@ -61,7 +62,7 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: "#fff",
     width: "100%", // Make sure the width is set to 100% of its parent
-    marginBottom: 60, // You might adjust or remove this if it causes layout issues
+    marginBottom: 120, // You might adjust or remove this if it causes layout issues
     maxWidth: 600, // Optionally set a max width for better web layout
   },
   recipeText: {
@@ -109,11 +110,12 @@ export const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     width: "100%",
+    maxWidth: 480, // Common mobile screen width
+    alignSelf: "center", // Center horizontally in the parent
     padding: 10,
     backgroundColor: "#f5f5f5",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
   },
   headerTitle: {
     fontSize: 18,

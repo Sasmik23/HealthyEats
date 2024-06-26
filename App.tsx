@@ -63,6 +63,13 @@ const HomeTabs = () => {
         },
         tabBarActiveTintColor: '#1E90FF', // DodgerBlue for active tab
         tabBarInactiveTintColor: '#ADD8E6', // LightBlue for inactive tab
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          maxWidth: 480, // Limit width to mobile-friendly dimensions
+          alignSelf: 'center', // Center the tab bar
+          width: '100%'
+        }, // Take the full width of the container
+
       })}
     >
       <Tab.Screen name="Profile" component={ProfileScreen} />
