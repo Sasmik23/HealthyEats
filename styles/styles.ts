@@ -1,49 +1,48 @@
-import { StyleSheet } from "react-native";
-const maxWidth = 414; // This is a common width for mobile devices
-import { Dimensions } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
 
 const screenHeight = Dimensions.get("window").height;
+const screenWidth = Dimensions.get("window").width;
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "flex-start", // Aligns content to the top
-    alignItems: "center", // Centers content horizontally
-    width: "100%", // Takes full width of the parent
-    maxHeight: screenHeight, // Use the actual screen height
+    padding: 20,
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+    alignSelf: "center",
   },
   input: {
-    width: "100%", // Adjust the width to be 90% of the parent container
+    width: "100%",
     padding: 15,
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 10,
     backgroundColor: "#fff",
     color: "black",
-    alignSelf: "center", // Ensure it is centered within its parent container
+    alignSelf: "center",
   },
   toggleButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "90%",
     marginBottom: 20,
+    alignSelf: "center",
   },
   toggleButton: {
     flex: 1,
     padding: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ddd",
+    backgroundColor: "#007BFF",
     borderRadius: 5,
     margin: 5,
   },
   activeToggleButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#0056b3",
   },
   toggleButtonText: {
     color: "#fff",
@@ -51,19 +50,21 @@ export const styles = StyleSheet.create({
   },
   recipeScrollContainer: {
     flexGrow: 1,
-    justifyContent: "flex-start",
-    alignItems: "center", // Make sure content is centered
-    width: "100%", // Ensure it takes the full width
+    paddingBottom: 20, // Add some padding at the bottom to avoid cutting off content
   },
   recipeContainer: {
     flex: 1,
-    padding: 16,
+    padding: 20,
     borderWidth: 1,
     borderRadius: 5,
     backgroundColor: "#fff",
-    width: "100%", // Make sure the width is set to 100% of its parent
-    marginBottom: 120, // You might adjust or remove this if it causes layout issues
-    maxWidth: 600, // Optionally set a max width for better web layout
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 7,
+    marginBottom: 20,
   },
   recipeText: {
     fontSize: 16,
@@ -84,7 +85,7 @@ export const styles = StyleSheet.create({
     marginTop: 10,
   },
   signOutButton: {
-    marginLeft: 10, // Adjusted to give space for the logo
+    marginLeft: 10,
   },
   centerContent: {
     flex: 1,
@@ -112,8 +113,6 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
-    maxWidth: 480, // Common mobile screen width
-    alignSelf: "center", // Center horizontally in the parent
     padding: 10,
     backgroundColor: "#f5f5f5",
   },
@@ -136,7 +135,7 @@ export const styles = StyleSheet.create({
     color: "#333",
   },
   profileText: {
-    fontSize: 22, // Increased font size
+    fontSize: 22,
     marginBottom: 15,
     color: "#333",
   },
@@ -144,7 +143,8 @@ export const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 10,
+    width: "100%",
   },
   profileLogo: {
     width: 300,
@@ -156,5 +156,76 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     padding: 10,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  closeButton: {
+    backgroundColor: "#DDDDDD",
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    textAlign: "center",
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContentContainer: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+  },
+  modalScrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  recipeItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#CCCCCC",
+  },
+  recipeItemText: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  recipeItemRating: {
+    fontSize: 16,
+    color: "#888888",
+  },
+  button: {
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+  },
+  rating: {
+    marginVertical: 20, // Add some margin to separate it from the buttons
   },
 });

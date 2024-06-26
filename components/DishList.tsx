@@ -7,7 +7,7 @@ const DishList: React.FC = () => {
     const [searchByDish, setSearchByDish] = React.useState<boolean>(true);
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.recipeContainer}>
             <Text style={styles.title}>Recipe Finder</Text>
             <View style={styles.toggleButtons}>
                 <TouchableOpacity

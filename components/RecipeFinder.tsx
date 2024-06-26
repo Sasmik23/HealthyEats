@@ -9,11 +9,8 @@ import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { styles } from '../styles/styles';
 import RecipeInput from './RecipeInput';
-//import Config from 'react-native-config';
-import { OPENAI_API_KEY } from '@env';
 import { Rating } from 'react-native-ratings';
-
-
+import { OPENAI_API_KEY } from '@env';
 
 Amplify.configure(outputs);
 
@@ -40,7 +37,6 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
 
     const fetchRecipe = async () => {
         setLoading(true);
-        // Clear previous recipe details
         setRecipe('');
         setCalories(null);
         setRating(null);
@@ -59,10 +55,8 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
         }
     };
 
-
     const fetchRecipeByDishName = async () => {
         setLoading(true);
-        console.log("Fetching recipe for dish:", dishName);
         try {
             const { errors, data: existingRecipeData } = await client.models.Dish.list({
                 filter: { dishName: { eq: dishName } }
@@ -82,7 +76,6 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                 setRecipe(existingRecipe.recipe ?? '');
                 setCalories(existingRecipe.calories ?? null);
                 setRating(existingRecipe.rating ?? null);
-                console.log("Found existing recipe:", existingRecipe);
             } else {
                 const response = await axios.post('https://api.openai.com/v1/chat/completions', {
                     model: 'gpt-3.5-turbo',
@@ -98,8 +91,7 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                 const estimatedCalories = await getEstimatedCalories(fetchedRecipe);
                 setRecipe(fetchedRecipe);
                 setCalories(estimatedCalories);
-                setRating(0); // Reset rating since this is a new recipe
-                console.log("Fetched new recipe from GPT:", fetchedRecipe);
+                setRating(0);
                 await client.models.Dish.create({
                     id: uuidv4(),
                     dishName: dishName,
@@ -117,9 +109,7 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
         }
     };
 
-
     const fetchRecipeByIngredients = async () => {
-        console.log("Fetching recipe for ingredients:", ingredients);
         try {
             const response = await axios.post(
                 'https://api.openai.com/v1/chat/completions',
@@ -137,7 +127,6 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
             );
             const fetchedRecipe = response.data.choices[0].message.content.trim();
             const estimatedCalories = await getEstimatedCalories(fetchedRecipe);
-
             const suggestedDishName = await getDishNameFromRecipe(fetchedRecipe);
 
             const { errors, data: existingRecipeData } = await client.models.Dish.list({
@@ -154,8 +143,6 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                     setRecipe(fetchedRecipe);
                     setCalories(estimatedCalories);
                     setRating(existingRecipe.rating ?? null);
-                    console.log("Fetched new recipe with lower calories from GPT:", fetchedRecipe);
-
                     await client.models.Dish.update({
                         id: existingRecipe.id,
                         recipe: fetchedRecipe,
@@ -165,15 +152,10 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                     setRecipe(existingRecipe.recipe ?? '');
                     setCalories(existingRecipe.calories ?? null);
                     setRating(existingRecipe.rating ?? null);
-                    console.log("Found existing recipe with lower or equal calories:", existingRecipe);
-                    setRatingSubmitted(false);  // Reset the submit button state
-
                 }
             } else {
                 setRecipe(fetchedRecipe);
                 setCalories(estimatedCalories);
-                console.log("Fetched recipe from GPT:", fetchedRecipe);
-
                 await client.models.Dish.create({
                     id: uuidv4(),
                     dishName: suggestedDishName,
@@ -182,9 +164,8 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                     ratingCount: 0,
                     calories: estimatedCalories,
                 });
-                setRatingSubmitted(false);  // Reset the submit button state
-
             }
+            setRatingSubmitted(false);
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.error('Axios error fetching recipe:', error.message);
@@ -213,14 +194,8 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                     },
                 }
             );
-            console.log("API response for calorie estimation:", response.data);
-
             const messageContent = response.data.choices[0].message.content.trim();
-            console.log("Message content for calorie estimation:", messageContent);
-
-            // Attempt to extract the first number found in the response content
             const estimatedCalories = parseFloat(messageContent.match(/(\d+(\.\d+)?)/)?.[0] || '0');
-            console.log("Estimated calories:", estimatedCalories);
             return estimatedCalories;
         } catch (error) {
             console.error('Error estimating calories:', error);
@@ -254,7 +229,6 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
 
     const submitRating = async () => {
         if (!userRating || !dishName) return;
-        console.log("Submitting rating for:", dishName);
         try {
             const { errors, data: existingRecipeData } = await client.models.Dish.list({
                 filter: { dishName: { eq: dishName } }
@@ -277,14 +251,12 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
 
                 setRating(newRating);
                 setUserRating(null);
-                setRatingSubmitted(true);  // Disable the Submit button
-                console.log("Updated rating:", newRating);
+                setRatingSubmitted(true);
             }
         } catch (error) {
             console.error('Error submitting rating:', error);
         }
     };
-
 
     const handleRatingCompleted = (rating: number) => {
         setUserRating(rating);
@@ -292,11 +264,10 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
 
     const handleBuyIngredients = () => {
         console.log("Redirecting to buy ingredients");
-        // Implementation for buying ingredients goes here
     };
 
     return (
-        <View>
+        <View style={styles.container}>
             <RecipeInput
                 searchByDish={searchByDish}
                 dishName={dishName}
@@ -320,6 +291,7 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                                 imageSize={40}
                                 showRating
                                 onFinishRating={handleRatingCompleted}
+                                style={styles.rating}
                             />
                             <View style={styles.buttonContainer}>
                                 {!ratingSubmitted && (
@@ -333,5 +305,6 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
             )}
         </View>
     );
-}
+};
+
 export default RecipeFinder;
