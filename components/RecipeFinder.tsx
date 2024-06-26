@@ -9,6 +9,10 @@ import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { styles } from '../styles/styles';
 import RecipeInput from './RecipeInput';
+//import Config from 'react-native-config';
+import { OPENAI_API_KEY } from '@env';
+
+
 
 Amplify.configure(outputs);
 
