@@ -1,6 +1,7 @@
-# Healthy Eats by FitTech Titans
+![ICON](./assets/icon.png)
 
-HealhtyEats is a mobile application designed to tackle diabetes in Singapore. It serves as a personalised companion for users to take control of their health. The application includes functionalities to search for healthy recipes by dish name or ingredients using AI, find healthier choice ingredients for those recipes and locate nearby healthy eateries curated by HPB.
+# Healthy Eats by FitTech Titans 
+HealhtyEats is a mobile application designed to tackle diabetes in Singapore. It serves as a personalised companion for users to take control of their health. The application includes functionalities to search for healthy recipes using AI, find healthier choice ingredients for those recipes and locate nearby healthy eateries curated by HPB.
 
 ## Table of Contents
 
@@ -106,9 +107,9 @@ HealhtyEats is a mobile application designed to tackle diabetes in Singapore. It
 
 ## Screenshots
 
-![Login Screen](./assets/HomeScreen.png)
-![Recipe Finder](./assets/Recipes.png)
-![Locator](./assets/Locations.png)
+<img src="./assets/HomeScreen.png" alt="Login Screen" width="200">
+<img src="./assets/Recipes.png" alt="Recipe Finder" width="200">
+<img src="./assets/Locations.png" alt="Locator" width="200">
 
 ## Contributing
 
