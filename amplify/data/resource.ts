@@ -23,6 +23,21 @@ const schema = a.schema({
       bmi: a.float(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
+  HealthyEateries: a
+    .model({
+      id: a.id(),
+      name: a.string(),
+      addressBlockHouseNumber: a.string(),
+      addressBuildingName: a.string(),
+      addressPostalCode: a.string(),
+      addressStreetName: a.string(),
+      addressType: a.string(),
+      description: a.string(),
+      addressFloorNumber: a.string(),
+      addressUnitNumber: a.string(),
+      coordinates: a.string(), // Store coordinates as string
+    })
+    .authorization((allow) => [allow.publicApiKey()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;

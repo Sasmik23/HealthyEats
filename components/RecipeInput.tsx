@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput, Button } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text } from 'react-native';
 import { styles } from '../styles/styles';
 
 interface RecipeInputProps {
@@ -30,7 +30,9 @@ const RecipeInput: React.FC<RecipeInputProps> = ({
                         value={dishName}
                         onChangeText={setDishName}
                     />
-                    <Button title="Get Recipe" onPress={fetchRecipe} />
+                    <TouchableOpacity style={styles.button} onPress={fetchRecipe}>
+                        <Text style={styles.buttonText}>Get Recipe</Text>
+                    </TouchableOpacity>
                 </>
             ) : (
                 <>
@@ -41,7 +43,9 @@ const RecipeInput: React.FC<RecipeInputProps> = ({
                         value={ingredients}
                         onChangeText={setIngredients}
                     />
-                    <Button title="Get Recipe" onPress={fetchRecipe} />
+                    <TouchableOpacity style={styles.button} onPress={fetchRecipe}>
+                        <Text style={styles.buttonText}>Get Recipe</Text>
+                    </TouchableOpacity>
                 </>
             )}
         </View>

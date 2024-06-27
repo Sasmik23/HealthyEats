@@ -4,26 +4,31 @@ const screenHeight = Dimensions.get("window").height;
 const screenWidth = Dimensions.get("window").width;
 
 export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#fff",
-  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
     alignSelf: "center",
+    fontFamily: "Poppins-Bold", // Custom font
+    color: "#013220", // Green color
+  },
+  recipeHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    //paddingHorizontal: 20,
   },
   input: {
     width: "100%",
     padding: 15,
     borderWidth: 1,
-    borderRadius: 5,
+    borderRadius: 10,
     marginBottom: 10,
     backgroundColor: "#fff",
     color: "black",
     alignSelf: "center",
+    fontFamily: "Poppins-Regular", // Custom font
   },
   toggleButtons: {
     flexDirection: "row",
@@ -37,55 +42,73 @@ export const styles = StyleSheet.create({
     padding: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#007BFF",
-    borderRadius: 5,
+    backgroundColor: "#5EB14A", // Light green background
+    borderRadius: 10,
     margin: 5,
   },
   activeToggleButton: {
-    backgroundColor: "#0056b3",
+    backgroundColor: "#459C36", // Darker green for active button
   },
   toggleButtonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontFamily: "Poppins-SemiBold", // Custom font
+    fontSize: 18,
   },
   recipeScrollContainer: {
     flexGrow: 1,
-    paddingBottom: 20, // Add some padding at the bottom to avoid cutting off content
+    paddingBottom: 20,
+    width: "100%",
   },
   recipeContainer: {
     flex: 1,
     padding: 20,
     borderWidth: 1,
-    borderRadius: 5,
+    borderRadius: 10,
     backgroundColor: "#fff",
-    width: "100%",
+    width: "105%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 7,
-    marginBottom: 20,
+    alignSelf: "center",
   },
   recipeText: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 18,
+    lineHeight: 26,
     color: "#333",
     marginBottom: 10,
+    fontFamily: "Poppins-Regular", // Custom font
   },
   caloriesText: {
     fontSize: 16,
     marginBottom: 10,
     fontWeight: "bold",
+    fontFamily: "Poppins-SemiBold", // Custom font
+    color: "#4CAF50", // Green color
   },
   ratingText: {
     fontSize: 16,
     marginBottom: 10,
+    fontFamily: "Poppins-Regular", // Custom font
   },
   submitButton: {
     marginTop: 10,
+    backgroundColor: "#5EB14A", // Light green background
+    padding: 10,
+    borderRadius: 10,
   },
-  signOutButton: {
-    marginLeft: 10,
+  expandButton: {
+    backgroundColor: "#4CAF50", // Light green background
+    padding: 10,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  submitButtonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontFamily: "Poppins-SemiBold", // Custom font
   },
   centerContent: {
     flex: 1,
@@ -95,6 +118,7 @@ export const styles = StyleSheet.create({
   comingSoonText: {
     fontSize: 24,
     fontWeight: "bold",
+    fontFamily: "Poppins-Bold", // Custom font
   },
   profileContainer: {
     width: "100%",
@@ -108,36 +132,19 @@ export const styles = StyleSheet.create({
     elevation: 7,
     marginBottom: 20,
   },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-    padding: 10,
-    backgroundColor: "#f5f5f5",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    flex: 1,
-    textAlign: "left",
-  },
-  headerLogo: {
-    width: 40,
-    height: 40,
-    resizeMode: "contain",
-  },
   welcomeText: {
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
     color: "#333",
+    fontFamily: "Poppins-Bold", // Custom font
   },
   profileText: {
     fontSize: 22,
     marginBottom: 15,
     color: "#333",
+    fontFamily: "Poppins-Regular", // Custom font
   },
   scrollContent: {
     flexGrow: 1,
@@ -156,30 +163,6 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     padding: 10,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  modalText: {
-    fontSize: 16,
-    marginBottom: 20,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  closeButton: {
-    backgroundColor: "#DDDDDD",
-    padding: 10,
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    fontSize: 18,
-    textAlign: "center",
   },
   modalBackground: {
     flex: 1,
@@ -209,23 +192,175 @@ export const styles = StyleSheet.create({
   recipeItemText: {
     fontSize: 18,
     fontWeight: "bold",
+    fontFamily: "Poppins-SemiBold", // Custom font
   },
   recipeItemRating: {
     fontSize: 16,
     color: "#888888",
+    fontFamily: "Poppins-Regular", // Custom font
   },
   button: {
-    backgroundColor: "#007BFF",
+    backgroundColor: "#5EB14A", // Light green background
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 10,
     alignItems: "center",
-    marginVertical: 10,
+    margin: 10,
   },
   buttonText: {
     color: "#FFFFFF",
     fontSize: 18,
+    fontFamily: "Poppins-SemiBold", // Custom font
   },
   rating: {
-    marginVertical: 20, // Add some margin to separate it from the buttons
+    marginVertical: 20,
+  },
+
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  headerContainer: {
+    padding: 15,
+    backgroundColor: "#E6F5E1",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    flex: 1,
+    fontFamily: "Poppins-Bold", // Custom font
+  },
+  logo: {
+    width: 60, // Adjust the size of the logo as needed
+    height: 60,
+    resizeMode: "contain",
+    position: "absolute",
+    left: "50%",
+    marginLeft: -30, // Half the width of the logo to center it
+  },
+  signOutButton: {
+    fontSize: 18,
+    color: "#4CAF50",
+    flex: 1,
+    textAlign: "right",
+    fontFamily: "Poppins-Bold", // Custom font
+  },
+  tabBar: {
+    backgroundColor: "#fff",
+    maxWidth: 480, // Limit width to mobile-friendly dimensions
+    alignSelf: "center", // Center the tab bar
+    width: "100%", // Take the full width of the container
+    borderTopWidth: 1,
+    borderTopColor: "#ddd",
+    paddingVertical: 10,
+    height: 60, // Adjust height if needed
+  },
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#E6F5E1", // Light green background
+    alignItems: "center",
+  },
+  locatorContainer: {
+    flex: 1,
+    backgroundColor: "#E6F5E1", // Light green background
+    padding: 10,
+  },
+  filterContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  picker: {
+    height: 50,
+    width: screenWidth / 2.2,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+  },
+  restaurantList: {
+    paddingBottom: 20,
+  },
+  restaurantItem: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  restaurantImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+  },
+  restaurantInfo: {
+    flex: 1,
+    marginLeft: 10,
+    justifyContent: "center",
+  },
+  restaurantName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    fontFamily: "Poppins-SemiBold", // Custom font
+  },
+  restaurantDistance: {
+    fontSize: 14,
+    color: "#666",
+    fontFamily: "Poppins-Regular", // Custom font
+  },
+  modalContainer: {
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 10,
+    fontFamily: "Poppins-Bold", // Custom font
+    color: "#4CAF50", // Green color
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 10,
+    textAlign: "center",
+    fontFamily: "Poppins-Regular", // Custom font
+  },
+  closeButton: {
+    backgroundColor: "#DDDDDD",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  closeButtonText: {
+    fontSize: 18,
+    textAlign: "center",
+    fontFamily: "Poppins-SemiBold", // Custom font
+  },
+  bmiCategory: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginLeft: 10,
+    fontFamily: "Poppins-Regular", // Custom font
+  },
+  bmiLow: {
+    color: "#FF5722", // Orange color for low BMI
+  },
+  bmiNormal: {
+    color: "#4CAF50", // Green color for normal BMI
+  },
+  bmiHigh: {
+    color: "#FF0000", // Red color for high BMI
   },
 });

@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { Text, TextInput, Button, ScrollView, View, ActivityIndicator } from 'react-native';
+import { Text, TextInput, TouchableOpacity, ScrollView, View, ActivityIndicator, Modal } from 'react-native';
 import axios from 'axios';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../amplify/data/resource';
 import { Amplify } from 'aws-amplify';
 import outputs from '../amplify_outputs.json';
-import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { styles } from '../styles/styles';
 import RecipeInput from './RecipeInput';
 import { Rating } from 'react-native-ratings';
-import { OPENAI_API_KEY } from '@env';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 Amplify.configure(outputs);
 
@@ -34,6 +33,9 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
     const [userRating, setUserRating] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [ratingSubmitted, setRatingSubmitted] = useState<boolean>(false);
+    const [isRecipeModalVisible, setIsRecipeModalVisible] = useState<boolean>(false);
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
+
 
     const fetchRecipe = async () => {
         setLoading(true);
@@ -265,7 +267,6 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
     const handleBuyIngredients = () => {
         console.log("Redirecting to buy ingredients");
     };
-
     return (
         <View style={styles.container}>
             <RecipeInput
@@ -280,8 +281,17 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
                 recipe ? (
-                    <ScrollView contentContainerStyle={styles.recipeScrollContainer}>
-                        <View style={styles.recipeContainer}>
+                    <View style={styles.recipeContainer}>
+                        <View style={styles.recipeHeader}>
+                            <Text style={styles.title}>Recipe</Text>
+                            <TouchableOpacity
+                                style={styles.expandButton}
+                                onPress={() => setModalVisible(true)}
+                            >
+                                <Ionicons name="expand" size={24} color="white" />
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView contentContainerStyle={styles.recipeScrollContainer}>
                             <Text style={styles.recipeText}>{recipe}</Text>
                             <Text style={styles.caloriesText}>Estimated Calories: {calories ? calories : 'N/A'}</Text>
                             <Text style={styles.ratingText}>Average User Rating: {rating ? rating.toFixed(1) : 'Not rated yet'}</Text>
@@ -295,12 +305,52 @@ const RecipeFinder: React.FC<{ searchByDish: boolean }> = ({ searchByDish }) => 
                             />
                             <View style={styles.buttonContainer}>
                                 {!ratingSubmitted && (
-                                    <Button title="Submit Rating" onPress={submitRating} />
+                                    <TouchableOpacity style={styles.submitButton} onPress={submitRating}>
+                                        <Text style={styles.submitButtonText}>Submit Rating</Text>
+                                    </TouchableOpacity>
                                 )}
-                                <Button title="Buy Ingredients" onPress={handleBuyIngredients} />
+                                <TouchableOpacity style={styles.submitButton} onPress={handleBuyIngredients}>
+                                    <Text style={styles.submitButtonText}>Buy Ingredients</Text>
+                                </TouchableOpacity>
                             </View>
-                        </View>
-                    </ScrollView>
+                        </ScrollView>
+                        <Modal visible={modalVisible} transparent animationType="slide">
+                            <View style={styles.modalBackground}>
+                                <View style={styles.modalContentContainer}>
+                                    <ScrollView contentContainerStyle={styles.modalScrollContainer}>
+                                        <Text style={styles.modalTitle}>Recipe</Text>
+                                        <Text style={styles.modalText}>{recipe}</Text>
+                                        <Text style={styles.caloriesText}>Estimated Calories: {calories ? calories : 'N/A'}</Text>
+                                        <Text style={styles.ratingText}>Average User Rating: {rating ? rating.toFixed(1) : 'Not rated yet'}</Text>
+                                        <Rating
+                                            type='star'
+                                            ratingCount={5}
+                                            imageSize={40}
+                                            showRating
+                                            onFinishRating={handleRatingCompleted}
+                                            style={styles.rating}
+                                        />
+                                        <View style={styles.buttonContainer}>
+                                            {!ratingSubmitted && (
+                                                <TouchableOpacity style={styles.submitButton} onPress={submitRating}>
+                                                    <Text style={styles.submitButtonText}>Submit Rating</Text>
+                                                </TouchableOpacity>
+                                            )}
+                                            <TouchableOpacity style={styles.submitButton} onPress={handleBuyIngredients}>
+                                                <Text style={styles.submitButtonText}>Buy Ingredients</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        <TouchableOpacity
+                                            style={styles.closeButton}
+                                            onPress={() => setModalVisible(false)}
+                                        >
+                                            <Text style={styles.closeButtonText}>Close</Text>
+                                        </TouchableOpacity>
+                                    </ScrollView>
+                                </View>
+                            </View>
+                        </Modal>
+                    </View>
                 ) : null
             )}
         </View>

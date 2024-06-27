@@ -1,10 +1,9 @@
 import React from 'react';
-import { View, Text, Button, Image } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import { Amplify } from 'aws-amplify';
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react-native';
 
@@ -24,15 +23,15 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ title }) => {
-  const { signOut } = useAuthenticator();
+  const { user, signOut } = useAuthenticator();
 
   return (
     <View style={styles.headerContainer}>
-      <Image source={require('./assets/logo.png')} style={styles.headerLogo} />
-      <Text style={styles.headerTitle}>{title}</Text>
-      <View style={styles.signOutButton}>
-        <Button title="Sign Out" onPress={signOut} />
-      </View>
+      <Text style={styles.userName}>{user?.signInDetails?.loginId?.split('@')[0]}</Text>
+      <Image source={require('./assets/logo.png')} style={styles.logo} />
+      <TouchableOpacity onPress={signOut}>
+        <Text style={styles.signOutButton}>Sign Out</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -61,15 +60,9 @@ const HomeTabs = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#1E90FF', // DodgerBlue for active tab
-        tabBarInactiveTintColor: '#ADD8E6', // LightBlue for inactive tab
-        tabBarStyle: {
-          backgroundColor: '#fff',
-          maxWidth: 480, // Limit width to mobile-friendly dimensions
-          alignSelf: 'center', // Center the tab bar
-          width: '100%'
-        }, // Take the full width of the container
-
+        tabBarActiveTintColor: '#4CAF50', // Green for active tab
+        tabBarInactiveTintColor: '#A5D6A7', // Light green for inactive tab
+        tabBarStyle: styles.tabBar,
       })}
     >
       <Tab.Screen name="Profile" component={ProfileScreen} />
@@ -84,12 +77,19 @@ const App = () => {
     <Authenticator.Provider>
       <Authenticator>
         <NavigationContainer>
+          <StatusBar backgroundColor="#E6F5E1" barStyle="dark-content" />
           <Stack.Navigator
-            screenOptions={({ route }) => ({
-              header: () => <Header title={route.name} />,
-            })}
+            screenOptions={{
+              headerTitleAlign: 'center',
+            }}
           >
-            <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="Home"
+              component={HomeTabs}
+              options={{
+                header: ({ route }) => <Header title={route.name} />,
+              }}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </Authenticator>

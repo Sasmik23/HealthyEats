@@ -66,6 +66,7 @@ const RecipeScreen: React.FC = () => {
     const closeModal = () => {
         setSelectedDish(null);
         setShowModal(false);
+        fetchDishes(); // Refresh the list of dishes after closing the modal
     };
 
     const toggleView = () => {
@@ -75,7 +76,6 @@ const RecipeScreen: React.FC = () => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.headerContainer}>
-                <Text style={styles.headerTitle}>Recipes</Text>
                 <TouchableOpacity style={styles.toggleButton} onPress={toggleView}>
                     <Text style={styles.toggleButtonText}>
                         {showDishList ? 'Show Existing Recipes' : 'Ask For Recipe'}
@@ -105,6 +105,7 @@ const RecipeScreen: React.FC = () => {
                             <Text style={styles.modalTitle}>{selectedDish?.dishName}</Text>
                             <Text style={styles.modalText}>Recipe: {selectedDish?.recipe}</Text>
                             <Text style={styles.modalText}>Calories: {selectedDish?.calories}</Text>
+                            <Text style={styles.modalText}>User Rating: {selectedDish?.rating}</Text>
                             <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
                                 <Text style={styles.closeButtonText}>Close</Text>
                             </TouchableOpacity>

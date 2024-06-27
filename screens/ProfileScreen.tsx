@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TextInput, Button, ScrollView, Image } from 'react-native';
+import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { useAuthenticator } from '@aws-amplify/ui-react-native';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../amplify/data/resource';
 import { styles } from '../styles/styles';
-import SignOutButton from './SignOutButton';
 import { v4 as uuidv4 } from 'uuid';
 
 const client = generateClient<Schema>();
@@ -79,6 +78,12 @@ const ProfileScreen: React.FC = () => {
         return value == null || isNaN(value) ? '' : value.toString();
     };
 
+    const getBmiCategory = (bmi: number) => {
+        if (bmi < 18.5) return { text: "Low", style: styles.bmiLow };
+        if (bmi >= 18.5 && bmi < 24.9) return { text: "Normal", style: styles.bmiNormal };
+        return { text: "High", style: styles.bmiHigh };
+    };
+
     if (loading) {
         return (
             <SafeAreaView style={styles.container}>
@@ -87,12 +92,10 @@ const ProfileScreen: React.FC = () => {
         );
     }
 
+    const bmiCategory = profile.bmi ? getBmiCategory(profile.bmi) : null;
+
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.headerTitle}>{user?.signInDetails?.loginId?.split('@')[0]}</Text>
-                <SignOutButton />
-            </View>
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <Image source={require('../assets/logo.png')} style={styles.profileLogo} />
                 <View style={styles.profileContainer}>
@@ -126,7 +129,9 @@ const ProfileScreen: React.FC = () => {
                                 value={getValue(profile.height)}
                                 onChangeText={(text) => handleInputChange('height', parseFloat(text))}
                             />
-                            <Button title="Save" onPress={handleSaveProfile} />
+                            <TouchableOpacity style={styles.button} onPress={handleSaveProfile}>
+                                <Text style={styles.buttonText}>Save</Text>
+                            </TouchableOpacity>
                         </View>
                     ) : (
                         <View>
@@ -134,8 +139,17 @@ const ProfileScreen: React.FC = () => {
                             <Text style={styles.profileText}>Age: {profile.age || 'N/A'}</Text>
                             <Text style={styles.profileText}>Weight: {profile.weight || 'N/A'}</Text>
                             <Text style={styles.profileText}>Height: {profile.height || 'N/A'}</Text>
-                            <Text style={styles.profileText}>BMI: {profile.bmi ? profile.bmi.toFixed(2) : 'N/A'}</Text>
-                            <Button title="Edit Profile" onPress={() => setEditMode(true)} />
+                            <Text style={styles.profileText}>
+                                BMI: {profile.bmi ? profile.bmi.toFixed(2) : 'N/A'}
+                                {bmiCategory && (
+                                    <Text style={bmiCategory.style}>
+                                        {" "}({bmiCategory.text})
+                                    </Text>
+                                )}
+                            </Text>
+                            <TouchableOpacity style={styles.button} onPress={() => setEditMode(true)}>
+                                <Text style={styles.buttonText}>Edit Profile</Text>
+                            </TouchableOpacity>
                         </View>
                     )}
                 </View>
