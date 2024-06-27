@@ -107,9 +107,7 @@ HealhtyEats is a mobile application designed to tackle diabetes in Singapore. It
 
 ## Screenshots
 
-<img src="./assets/HomeScreen.png" alt="Login Screen" width="200">
-<img src="./assets/Recipes.png" alt="Recipe Finder" width="200">
-<img src="./assets/Locations.png" alt="Locator" width="200">
+<img src="./assets/HomeScreen.png" alt="Login Screen" width="200"> <img src="./assets/Recipes.png" alt="Recipe Finder" width="200"> <img src="./assets/Locations.png" alt="Locator" width="200">
 
 ## Contributing
 
