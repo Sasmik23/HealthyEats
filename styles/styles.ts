@@ -66,7 +66,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     backgroundColor: "#fff",
-    width: "105%",
+    width: "100%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
@@ -204,7 +204,7 @@ export const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     alignItems: "center",
-    margin: 10,
+    marginVertical: 5,
   },
   buttonText: {
     color: "#FFFFFF",
@@ -262,7 +262,7 @@ export const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
+    padding: 10,
     backgroundColor: "#E6F5E1", // Light green background
     alignItems: "center",
   },
@@ -367,5 +367,15 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: "center",
     fontFamily: "Poppins-Regular", // Custom font
+  },
+  closeIcon: {
+    alignSelf: "flex-end",
+  },
+  absolute: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
   },
 });

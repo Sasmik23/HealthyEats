@@ -112,6 +112,7 @@ const RecipeScreen: React.FC = () => {
                         </ScrollView>
                     </View>
                 </View>
+
             </Modal>
         </SafeAreaView>
     );
