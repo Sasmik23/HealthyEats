@@ -47,32 +47,36 @@ const LocatorScreen: React.FC = () => {
     }, [location, maxDistance, sortOrder]);
 
     const requestLocationPermission = async () => {
-        try {
-            let permission;
+        if (Platform.OS === 'web') {
+            getCurrentLocation();
+        } else {
+            try {
+                let permission;
 
-            if (Platform.OS === 'ios') {
-                permission = PERMISSIONS.IOS.LOCATION_WHEN_IN_USE;
-            } else {
-                permission = PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
-            }
-
-            const result = await check(permission);
-
-            if (result === RESULTS.DENIED) {
-                const requestResult = await request(permission);
-
-                if (requestResult !== RESULTS.GRANTED) {
-                    showLocationPermissionAlert();
+                if (Platform.OS === 'ios') {
+                    permission = PERMISSIONS.IOS.LOCATION_WHEN_IN_USE;
                 } else {
+                    permission = PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+                }
+
+                const result = await check(permission);
+
+                if (result === RESULTS.DENIED) {
+                    const requestResult = await request(permission);
+
+                    if (requestResult !== RESULTS.GRANTED) {
+                        showLocationPermissionAlert();
+                    } else {
+                        getCurrentLocation();
+                    }
+                } else if (result === RESULTS.BLOCKED) {
+                    showLocationPermissionAlert();
+                } else if (result === RESULTS.GRANTED) {
                     getCurrentLocation();
                 }
-            } else if (result === RESULTS.BLOCKED) {
-                showLocationPermissionAlert();
-            } else if (result === RESULTS.GRANTED) {
-                getCurrentLocation();
+            } catch (error) {
+                console.error('Error requesting location permission:', error);
             }
-        } catch (error) {
-            console.error('Error requesting location permission:', error);
         }
     };
 
@@ -88,17 +92,34 @@ const LocatorScreen: React.FC = () => {
     };
 
     const getCurrentLocation = () => {
-        Geolocation.getCurrentPosition(
-            (position) => {
-                console.log('Current location:', position.coords);
-                setLocation(position.coords);
-            },
-            (error) => {
-                console.error('Error getting location:', error);
-                showLocationPermissionAlert();
-            },
-            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-        );
+        if (Platform.OS === 'web') {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        console.log('Current location:', position.coords);
+                        setLocation(position.coords);
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                        showLocationPermissionAlert();
+                    }
+                );
+            } else {
+                console.error('Geolocation is not supported by this browser.');
+            }
+        } else {
+            Geolocation.getCurrentPosition(
+                (position) => {
+                    console.log('Current location:', position.coords);
+                    setLocation(position.coords);
+                },
+                (error) => {
+                    console.error('Error getting location:', error);
+                    showLocationPermissionAlert();
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+            );
+        }
     };
 
     const fetchRestaurants = async () => {

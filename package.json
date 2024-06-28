@@ -24,7 +24,7 @@
     "@react-navigation/native-stack": "^6.9.26",
     "aws-amplify": "^6.3.7",
     "axios": "^1.7.2",
-    "expo": "^51.0.14",
+    "expo": "~51.0.16",
     "expo-status-bar": "~1.12.1",
     "haversine-distance": "^1.2.3",
     "react": "18.2.0",
