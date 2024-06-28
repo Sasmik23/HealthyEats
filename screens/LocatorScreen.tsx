@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, FlatList, TouchableOpacity, ListRenderItem, Image } from 'react-native';
+import { ActivityIndicator, SafeAreaView, View, Text, FlatList, TouchableOpacity, ListRenderItem, Image, Alert, Platform } from 'react-native';
 import { styles } from '../styles/styles';
 import { useAuthenticator } from '@aws-amplify/ui-react-native';
 import Geolocation, { GeoPosition } from 'react-native-geolocation-service';
@@ -8,6 +8,7 @@ import type { Schema } from '../amplify/data/resource';
 import { generateClient } from "aws-amplify/data";
 import haversine from 'haversine-distance';
 import { Picker } from '@react-native-picker/picker';
+import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native-permissions';
 
 interface HealthyEateryWithDistance {
     id: string;
@@ -33,18 +34,10 @@ const LocatorScreen: React.FC = () => {
     const [selectedRestaurant, setSelectedRestaurant] = useState<HealthyEateryWithDistance | null>(null);
     const [maxDistance, setMaxDistance] = useState<string>('10000'); // Default to 10km
     const [sortOrder, setSortOrder] = useState<string>('asc');
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        Geolocation.getCurrentPosition(
-            (position) => {
-                console.log('Current location:', position.coords);
-                setLocation(position.coords);
-            },
-            (error) => {
-                console.error('Error getting location:', error);
-            },
-            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-        );
+        requestLocationPermission();
     }, []);
 
     useEffect(() => {
@@ -53,7 +46,63 @@ const LocatorScreen: React.FC = () => {
         }
     }, [location, maxDistance, sortOrder]);
 
+    const requestLocationPermission = async () => {
+        try {
+            let permission;
+
+            if (Platform.OS === 'ios') {
+                permission = PERMISSIONS.IOS.LOCATION_WHEN_IN_USE;
+            } else {
+                permission = PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+            }
+
+            const result = await check(permission);
+
+            if (result === RESULTS.DENIED) {
+                const requestResult = await request(permission);
+
+                if (requestResult !== RESULTS.GRANTED) {
+                    showLocationPermissionAlert();
+                } else {
+                    getCurrentLocation();
+                }
+            } else if (result === RESULTS.BLOCKED) {
+                showLocationPermissionAlert();
+            } else if (result === RESULTS.GRANTED) {
+                getCurrentLocation();
+            }
+        } catch (error) {
+            console.error('Error requesting location permission:', error);
+        }
+    };
+
+    const showLocationPermissionAlert = () => {
+        Alert.alert(
+            'Location Permission Required',
+            'This app needs location permission to show nearby restaurants. Please enable location services in your device settings.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Open Settings', onPress: openSettings }
+            ]
+        );
+    };
+
+    const getCurrentLocation = () => {
+        Geolocation.getCurrentPosition(
+            (position) => {
+                console.log('Current location:', position.coords);
+                setLocation(position.coords);
+            },
+            (error) => {
+                console.error('Error getting location:', error);
+                showLocationPermissionAlert();
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+        );
+    };
+
     const fetchRestaurants = async () => {
+        setLoading(true);
         try {
             const { data: allRestaurants, errors } = await client.models.HealthyEateries.list();
             if (errors) {
@@ -93,6 +142,8 @@ const LocatorScreen: React.FC = () => {
             setRestaurants(sortedRestaurants);
         } catch (error) {
             console.error('Error fetching restaurants:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -121,7 +172,6 @@ const LocatorScreen: React.FC = () => {
                     <Picker.Item label="Within 10 km" value="10000" />
                     <Picker.Item label="Within 20 km" value="20000" />
                     <Picker.Item label="Beyond 20 km" value="100000000000" />
-
                 </Picker>
                 <Picker
                     selectedValue={sortOrder}
@@ -132,12 +182,16 @@ const LocatorScreen: React.FC = () => {
                     <Picker.Item label="Sort by Distance: Descending" value="desc" />
                 </Picker>
             </View>
-            <FlatList
-                data={restaurants}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.restaurantList}
-            />
+            {loading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+                <FlatList
+                    data={restaurants}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.id}
+                    contentContainerStyle={styles.restaurantList}
+                />
+            )}
             <Modal isVisible={!!selectedRestaurant} onBackdropPress={() => setSelectedRestaurant(null)}>
                 {selectedRestaurant ? (
                     <View style={styles.modalContainer}>

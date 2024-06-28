@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    //marginBottom: 20,
     alignSelf: "center",
     fontFamily: "Poppins-Bold", // Custom font
     color: "#013220", // Green color
@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: "90%",
-    marginBottom: 20,
+    //marginBottom: 20,
     alignSelf: "center",
   },
   toggleButton: {
@@ -94,9 +94,9 @@ export const styles = StyleSheet.create({
     fontFamily: "Poppins-Regular", // Custom font
   },
   submitButton: {
-    marginTop: 10,
+    marginHorizontal: 10,
     backgroundColor: "#5EB14A", // Light green background
-    padding: 10,
+    padding: 5,
     borderRadius: 10,
   },
   expandButton: {
@@ -221,7 +221,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerContainer: {
-    padding: 15,
+    padding: 5,
     backgroundColor: "#E6F5E1",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
@@ -236,11 +236,11 @@ export const styles = StyleSheet.create({
     fontFamily: "Poppins-Bold", // Custom font
   },
   logo: {
-    width: 60, // Adjust the size of the logo as needed
-    height: 60,
+    width: 40, // Adjust the size of the logo as needed
+    height: 40,
     resizeMode: "contain",
     position: "absolute",
-    left: "50%",
+    left: "80%",
     marginLeft: -30, // Half the width of the logo to center it
   },
   signOutButton: {
@@ -362,5 +362,10 @@ export const styles = StyleSheet.create({
   },
   bmiHigh: {
     color: "#FF0000", // Red color for high BMI
+  },
+  disclaimer: {
+    fontSize: 12,
+    textAlign: "center",
+    fontFamily: "Poppins-Regular", // Custom font
   },
 });

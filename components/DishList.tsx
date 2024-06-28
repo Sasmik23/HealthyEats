@@ -9,6 +9,7 @@ const DishList: React.FC = () => {
     return (
         <SafeAreaView style={styles.recipeContainer}>
             <Text style={styles.title}>AI Recipe Finder</Text>
+
             <View style={styles.toggleButtons}>
                 <TouchableOpacity
                     style={[styles.toggleButton, searchByDish && styles.activeToggleButton]}
@@ -23,6 +24,7 @@ const DishList: React.FC = () => {
                     <Text style={styles.toggleButtonText}>Ingredients</Text>
                 </TouchableOpacity>
             </View>
+
             <RecipeFinder searchByDish={searchByDish} />
         </SafeAreaView>
     );
