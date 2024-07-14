@@ -1,36 +1,24 @@
-import React, { useState } from 'react';
-import { Text, ScrollView, View, ActivityIndicator, Modal, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import axios from 'axios';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { styles } from '../styles/styles';
+import RecipeInput from './RecipeInput';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../amplify/data/resource';
 import { Amplify } from 'aws-amplify';
 import outputs from '../amplify_outputs.json';
 import { v4 as uuidv4 } from 'uuid';
-import { styles } from '../styles/styles';
-import RecipeInput from './RecipeInput';
-import { Rating } from 'react-native-ratings';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Rating } from 'react-native-ratings'; // Import Rating component
 
 Amplify.configure(outputs);
 
-interface Recipe {
-    id: string;
-    dishName: string;
-    recipe: string;
-    rating: number;
-    ratingCount: number;
-    calories: number;
-}
-
 const client = generateClient<Schema>();
 
-interface RecipeFinderProps {
-    searchByDish: boolean;
-}
-
-const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
+const RecipeFinder: React.FC = () => {
     const [dishName, setDishName] = useState<string>('');
     const [ingredients, setIngredients] = useState<string>('');
+    const [cuisine, setCuisine] = useState<string>('None');
     const [recipe, setRecipe] = useState<string>('');
     const [calories, setCalories] = useState<number | null>(null);
     const [rating, setRating] = useState<number | null>(null);
@@ -38,8 +26,28 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [ratingSubmitted, setRatingSubmitted] = useState<boolean>(false);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [imageUri, setImageUri] = useState<string | null>(null);
+    const [profile, setProfile] = useState<any>(null);
 
-    const fetchRecipe = async () => {
+    useEffect(() => {
+        fetchUserProfile();
+    }, []);
+
+    const fetchUserProfile = async () => {
+        try {
+            const userId = 'currentUserId'; // Replace with actual user ID
+            const { errors, data } = await client.models.Profile.get({ id: userId });
+            if (errors) {
+                console.error('Error fetching user profile:', errors);
+                return;
+            }
+            setProfile(data);
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+        }
+    };
+
+    const fetchRecipe = async (selectedCuisine: string, dishName: string, ingredients: string, imageUri: string | null) => {
         setLoading(true);
         setRecipe('');
         setCalories(null);
@@ -47,10 +55,12 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
         setRatingSubmitted(false);
 
         try {
-            if (searchByDish) {
-                await fetchRecipeByDishName();
-            } else {
-                await fetchRecipeByIngredients();
+            if (imageUri) {
+                await fetchRecipeByImage(imageUri, selectedCuisine);
+            } else if (dishName) {
+                await fetchRecipeByDishName(dishName, selectedCuisine);
+            } else if (ingredients) {
+                await fetchRecipeByIngredients(ingredients, selectedCuisine);
             }
         } catch (error) {
             console.error('Error fetching recipe:', error);
@@ -59,8 +69,24 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
         }
     };
 
-    const fetchRecipeByDishName = async () => {
-        setLoading(true);
+    const getCustomizedPrompt = (basePrompt: string) => {
+        let customPrompt = basePrompt;
+        if (profile) {
+            if (profile.chronicDisease) {
+                customPrompt += ` The user has the following chronic disease(s): ${profile.chronicDisease}.`;
+            }
+            if (profile.healthGoal) {
+                customPrompt += ` The user's health goal is: ${profile.healthGoal}.`;
+            }
+            if (profile.targetWeight) {
+                customPrompt += ` The user's target weight is: ${profile.targetWeight}kg.`;
+            }
+        }
+        return customPrompt;
+    };
+
+    const fetchRecipeByDishName = async (dishName: string, cuisine: string) => {
+        console.log('Dish Name:', dishName, 'Cuisine:', cuisine);
         try {
             const { errors, data: existingRecipeData } = await client.models.Dish.list({
                 filter: { dishName: { eq: dishName } }
@@ -71,7 +97,6 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
                 setCalories(null);
                 setRating(null);
                 setRatingSubmitted(false);
-                setLoading(false);
                 return;
             }
 
@@ -81,9 +106,14 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
                 setCalories(existingRecipe.calories ?? null);
                 setRating(existingRecipe.rating ?? null);
             } else {
+                const basePrompt = `Provide a healthy recipe for ${dishName} with ${cuisine} cuisine.`;
+                const customPrompt = getCustomizedPrompt(basePrompt);
+
                 const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-                    model: 'gpt-3.5-turbo',
-                    messages: [{ role: 'user', content: `Provide a healthy recipe for ${dishName} for diabetics.` }],
+                    model: 'gpt-4',
+                    messages: [
+                        { role: 'user', content: customPrompt }
+                    ],
                     max_tokens: 1000,
                 }, {
                     headers: {
@@ -108,18 +138,20 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
             setRatingSubmitted(false);
         } catch (error) {
             console.error('Error fetching recipe:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
-    const fetchRecipeByIngredients = async () => {
+    const fetchRecipeByIngredients = async (ingredients: string, cuisine: string) => {
+        console.log('Ingredients:', ingredients, 'Cuisine:', cuisine);
         try {
+            const basePrompt = `Provide a healthy recipe with these ingredients: ${ingredients}, with ${cuisine} cuisine.`;
+            const customPrompt = getCustomizedPrompt(basePrompt);
+
             const response = await axios.post(
                 'https://api.openai.com/v1/chat/completions',
                 {
-                    model: 'gpt-3.5-turbo',
-                    messages: [{ role: 'user', content: `Provide a healthy recipe with these ingredients: ${ingredients}, for diabetics` }],
+                    model: 'gpt-4',
+                    messages: [{ role: 'user', content: customPrompt }],
                     max_tokens: 1000,
                 },
                 {
@@ -182,12 +214,80 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
         }
     };
 
+    const fetchRecipeByImage = async (imageUri: string, cuisine: string) => {
+        try {
+            const basePrompt = `Provide a healthy recipe with the ingredients shown in this image, with ${cuisine} cuisine.`;
+            const customPrompt = getCustomizedPrompt(basePrompt);
+
+            const base64Image = await convertImageToBase64(imageUri);
+            const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+                model: 'gpt-4',
+                messages: [
+                    {
+                        role: 'user',
+                        content: customPrompt,
+                        additional_images: [`data:image/jpeg;base64,${base64Image}`],
+                    }
+                ],
+                max_tokens: 1000,
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+                },
+            });
+            const fetchedRecipe = response.data.choices[0].message.content.trim();
+            const estimatedCalories = await getEstimatedCalories(fetchedRecipe);
+            const suggestedDishName = await getDishNameFromRecipe(fetchedRecipe);
+
+            const { errors, data: existingRecipeData } = await client.models.Dish.list({
+                filter: { dishName: { eq: suggestedDishName } }
+            });
+            if (errors) {
+                console.error('Error fetching recipes:', errors);
+                return;
+            }
+
+            if (existingRecipeData && existingRecipeData.length > 0) {
+                const existingRecipe = existingRecipeData[0];
+                if (existingRecipe.calories != null && estimatedCalories < existingRecipe.calories) {
+                    setRecipe(fetchedRecipe);
+                    setCalories(estimatedCalories);
+                    setRating(existingRecipe.rating ?? null);
+                    await client.models.Dish.update({
+                        id: existingRecipe.id,
+                        recipe: fetchedRecipe,
+                        calories: estimatedCalories,
+                    });
+                } else {
+                    setRecipe(existingRecipe.recipe ?? '');
+                    setCalories(existingRecipe.calories ?? null);
+                    setRating(existingRecipe.rating ?? null);
+                }
+            } else {
+                setRecipe(fetchedRecipe);
+                setCalories(estimatedCalories);
+                await client.models.Dish.create({
+                    id: uuidv4(),
+                    dishName: suggestedDishName,
+                    recipe: fetchedRecipe,
+                    rating: 0,
+                    ratingCount: 0,
+                    calories: estimatedCalories,
+                });
+            }
+            setRatingSubmitted(false);
+        } catch (error) {
+            console.error('Error fetching recipe by image:', error);
+        }
+    };
+
     const getEstimatedCalories = async (recipe: string): Promise<number> => {
         try {
             const response = await axios.post(
                 'https://api.openai.com/v1/chat/completions',
                 {
-                    model: 'gpt-3.5-turbo',
+                    model: 'gpt-4',
                     messages: [{ role: 'user', content: `Estimate the calories for the following recipe:\n\n${recipe}` }],
                     max_tokens: 50,
                 },
@@ -212,7 +312,7 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
             const response = await axios.post(
                 'https://api.openai.com/v1/chat/completions',
                 {
-                    model: 'gpt-3.5-turbo',
+                    model: 'gpt-4',
                     messages: [{ role: 'user', content: `Extract the dish name from the following recipe:\n\n${recipe}` }],
                     max_tokens: 50,
                 },
@@ -229,6 +329,10 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
             console.error('Error extracting dish name:', error);
             return '';
         }
+    };
+
+    const handleRatingCompleted = (rating: number) => {
+        setUserRating(rating);
     };
 
     const submitRating = async () => {
@@ -262,10 +366,6 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
         }
     };
 
-    const handleRatingCompleted = (rating: number) => {
-        setUserRating(rating);
-    };
-
     const handleBuyIngredients = () => {
         console.log("Redirecting to buy ingredients");
     };
@@ -277,12 +377,9 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
         >
             <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
                 <RecipeInput
-                    searchByDish={searchByDish}
-                    dishName={dishName}
-                    setDishName={setDishName}
-                    ingredients={ingredients}
-                    setIngredients={setIngredients}
                     fetchRecipe={fetchRecipe}
+                    setDishName={setDishName}
+                    setIngredients={setIngredients}
                 />
                 {loading ? (
                     <ActivityIndicator size="large" color="#0000ff" />
@@ -290,7 +387,7 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
                     recipe ? (
                         <View style={styles.recipeContainer}>
                             <View style={styles.recipeHeader}>
-                                <Text style={styles.title}>{dishName}</Text>
+                                <Text style={styles.title}>{dishName || 'Generated Recipe'}</Text>
                                 <TouchableOpacity
                                     style={styles.expandButton}
                                     onPress={() => setModalVisible(true)}
@@ -307,7 +404,7 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
                                 <View style={styles.modalBackground}>
                                     <View style={styles.modalContentContainer}>
                                         <ScrollView contentContainerStyle={styles.modalScrollContainer}>
-                                            <Text style={styles.modalTitle}>{dishName}</Text>
+                                            <Text style={styles.modalTitle}>{dishName || 'Generated Recipe'}</Text>
                                             <Text style={styles.modalText}>{recipe}</Text>
                                             <Text style={styles.caloriesText}>Estimated Calories: {calories ? calories : 'N/A'}</Text>
                                             <Text style={styles.ratingText}>Average User Rating: {rating ? rating.toFixed(1) : 'Not rated yet'}</Text>
@@ -325,7 +422,7 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
                                                         submitRating();
                                                         setRatingSubmitted(true);
                                                     }}>
-                                                        <Text style={styles.submitButtonText}>Submit</Text>
+                                                        <Text style={styles.submitButtonText}>Rate the recipe!</Text>
                                                     </TouchableOpacity>
                                                 )}
                                                 <TouchableOpacity style={styles.submitButton} onPress={handleBuyIngredients}>
@@ -342,7 +439,6 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
                                     </View>
                                 </View>
                             </Modal>
-
                         </View>
                     ) : null
                 )}
@@ -352,3 +448,22 @@ const RecipeFinder: React.FC<RecipeFinderProps> = ({ searchByDish }) => {
 };
 
 export default RecipeFinder;
+
+async function convertImageToBase64(imageUri: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                resolve(reader.result as string);
+            };
+            reader.readAsDataURL(xhr.response);
+        };
+        xhr.onerror = function () {
+            reject(new Error('Failed to convert image to base64'));
+        };
+        xhr.open('GET', imageUri);
+        xhr.responseType = 'blob';
+        xhr.send();
+    });
+}

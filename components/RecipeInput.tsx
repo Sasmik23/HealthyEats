@@ -1,26 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Modal, Platform, KeyboardAvoidingView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { BlurView } from '@react-native-community/blur';
 import { styles } from '../styles/styles';
+import { Picker } from '@react-native-picker/picker';
 
 interface RecipeInputProps {
-    searchByDish: boolean;
-    dishName: string;
+    fetchRecipe: (cuisine: string, dishName: string, ingredients: string, imageUri: string | null) => void;
     setDishName: React.Dispatch<React.SetStateAction<string>>;
-    ingredients: string;
     setIngredients: React.Dispatch<React.SetStateAction<string>>;
-    fetchRecipe: () => void;
 }
 
-const RecipeInput: React.FC<RecipeInputProps> = ({
-    searchByDish,
-    dishName,
-    setDishName,
-    ingredients,
-    setIngredients,
-    fetchRecipe,
-}) => {
+const RecipeInput: React.FC<RecipeInputProps> = ({ fetchRecipe, setDishName, setIngredients }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [queryType, setQueryType] = useState<'dish' | 'ingredients'>('dish');
+    const [cuisine, setCuisine] = useState<string>('None');
+    const [imageUri, setImageUri] = useState<string | null>(null);
+    const [inputValue, setInputValue] = useState<string>('');
+
+    const textInputRef = useRef<TextInput>(null);
 
     const handleFocus = () => {
         setIsModalVisible(true);
@@ -30,14 +29,46 @@ const RecipeInput: React.FC<RecipeInputProps> = ({
         setIsModalVisible(false);
     };
 
+    const handleImagePicker = (launchFunction: (options: any) => Promise<any>) => {
+        launchFunction({
+            mediaType: 'photo',
+            includeBase64: false,
+            maxHeight: 200,
+            maxWidth: 200,
+        }).then((response) => {
+            if (response.assets && response.assets.length > 0) {
+                setImageUri(response.assets[0].uri ?? null);
+            }
+        });
+    };
+
+    useEffect(() => {
+        if (isModalVisible && textInputRef.current) {
+            textInputRef.current.focus();
+        }
+    }, [isModalVisible]);
+
+    const handleSubmit = () => {
+        if (queryType === 'dish') {
+            setDishName(inputValue);
+            setIngredients('');
+            fetchRecipe(cuisine, inputValue, '', imageUri);
+        } else {
+            setIngredients(inputValue);
+            setDishName('');
+            fetchRecipe(cuisine, '', inputValue, imageUri);
+        }
+        handleClose();
+    };
+
     return (
         <>
             <TouchableOpacity onPress={handleFocus}>
                 <TextInput
                     style={styles.input}
-                    placeholder={searchByDish ? "Enter dish name" : "Enter ingredients (comma separated)"}
+                    placeholder={queryType === 'dish' ? "Enter dish name" : "Enter ingredients (comma separated)"}
                     placeholderTextColor="#888"
-                    value={searchByDish ? dishName : ingredients}
+                    value={inputValue}
                     editable={false}
                 />
             </TouchableOpacity>
@@ -46,6 +77,12 @@ const RecipeInput: React.FC<RecipeInputProps> = ({
                 transparent={true}
                 animationType="slide"
             >
+                <BlurView
+                    style={styles.absolute}
+                    blurType="light"
+                    blurAmount={10}
+                    reducedTransparencyFallbackColor="white"
+                />
                 <KeyboardAvoidingView
                     style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -54,15 +91,50 @@ const RecipeInput: React.FC<RecipeInputProps> = ({
                         <TouchableOpacity style={styles.closeIcon} onPress={handleClose}>
                             <Ionicons name="close" size={30} color="#000" />
                         </TouchableOpacity>
-                        <TextInput
+                        <Picker
+                            selectedValue={queryType}
                             style={styles.input}
-                            placeholder={searchByDish ? "Enter dish name" : "Enter ingredients (comma separated)"}
+                            onValueChange={(itemValue) => setQueryType(itemValue as 'dish' | 'ingredients')}
+                        >
+                            <Picker.Item label="Dish" value="dish" />
+                            <Picker.Item label="Ingredients" value="ingredients" />
+                        </Picker>
+                        <TextInput
+                            ref={textInputRef}
+                            style={styles.input}
+                            placeholder={queryType === 'dish' ? "Enter dish name" : "Enter ingredients (comma separated)"}
                             placeholderTextColor="#888"
-                            value={searchByDish ? dishName : ingredients}
-                            onChangeText={searchByDish ? setDishName : setIngredients}
+                            value={inputValue}
+                            onChangeText={setInputValue}
                             autoFocus={true}
                         />
-                        <TouchableOpacity style={styles.button} onPress={() => { fetchRecipe(); handleClose(); }}>
+                        {queryType === 'ingredients' && (
+                            <>
+                                <TouchableOpacity
+                                    style={[styles.imagePickerButton, imageUri ? styles.activeImagePickerButton : null]}
+                                    onPress={() => handleImagePicker(launchCamera)}
+                                >
+                                    <Text style={styles.buttonText}>Take a Photo</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.imagePickerButton, imageUri ? styles.activeImagePickerButton : null]}
+                                    onPress={() => handleImagePicker(launchImageLibrary)}
+                                >
+                                    <Text style={styles.buttonText}>Choose from Gallery</Text>
+                                </TouchableOpacity>
+                            </>
+                        )}
+                        <Picker
+                            selectedValue={cuisine}
+                            style={styles.input}
+                            onValueChange={(itemValue) => setCuisine(itemValue)}
+                        >
+                            <Picker.Item label="None" value="None" />
+                            <Picker.Item label="Indian" value="Indian" />
+                            <Picker.Item label="Chinese" value="Chinese" />
+                            <Picker.Item label="Western" value="Western" />
+                        </Picker>
+                        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                             <Text style={styles.buttonText}>Get Recipe</Text>
                         </TouchableOpacity>
                     </View>

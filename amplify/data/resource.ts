@@ -8,7 +8,7 @@ const schema = a.schema({
       recipe: a.string(),
       rating: a.float(),
       ratingCount: a.integer(),
-      calories: a.float(), // Added calories field
+      calories: a.float(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
   Profile: a
@@ -16,11 +16,13 @@ const schema = a.schema({
       id: a.id(),
       userId: a.string(),
       profilePicture: a.string(),
-      name: a.string(),
       age: a.integer(),
       weight: a.float(),
       height: a.float(),
       bmi: a.float(),
+      chronicDisease: a.string(), // Added chronicDisease field
+      healthGoal: a.string(), // Added healthGoal field
+      targetWeight: a.float(), // Added targetWeight field
     })
     .authorization((allow) => [allow.publicApiKey()]),
   HealthyEateries: a
@@ -35,7 +37,7 @@ const schema = a.schema({
       description: a.string(),
       addressFloorNumber: a.string(),
       addressUnitNumber: a.string(),
-      coordinates: a.string(), // Store coordinates as string
+      coordinates: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
 });

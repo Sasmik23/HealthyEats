@@ -7,7 +7,6 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    //marginBottom: 20,
     alignSelf: "center",
     fontFamily: "Poppins-Bold", // Custom font
     color: "#013220", // Green color
@@ -17,7 +16,6 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
-    //paddingHorizontal: 20,
   },
   input: {
     width: "100%",
@@ -28,32 +26,32 @@ export const styles = StyleSheet.create({
     backgroundColor: "#fff",
     color: "black",
     alignSelf: "center",
-    fontFamily: "Poppins-Regular", // Custom font
+    fontFamily: "Poppins-Regular",
   },
   toggleButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "90%",
-    //marginBottom: 20,
     alignSelf: "center",
   },
   toggleButton: {
-    flex: 1,
-    padding: 10,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#5EB14A", // Light green background
+    padding: 10,
+    backgroundColor: "#5EB14A",
     borderRadius: 10,
     margin: 5,
   },
   activeToggleButton: {
-    backgroundColor: "#459C36", // Darker green for active button
+    backgroundColor: "#459C36",
   },
   toggleButtonText: {
     color: "#fff",
     fontWeight: "bold",
-    fontFamily: "Poppins-SemiBold", // Custom font
+    fontFamily: "Poppins-SemiBold",
     fontSize: 18,
+    marginLeft: 5,
   },
   recipeScrollContainer: {
     flexGrow: 1,
@@ -121,7 +119,7 @@ export const styles = StyleSheet.create({
     fontFamily: "Poppins-Bold", // Custom font
   },
   profileContainer: {
-    width: "100%",
+    width: screenWidth * 0.9, // Fill 90% of the screen width
     padding: 30,
     backgroundColor: "#fff",
     borderRadius: 15,
@@ -131,6 +129,7 @@ export const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 7,
     marginBottom: 20,
+    alignSelf: "center", // Center the container
   },
   welcomeText: {
     fontSize: 32,
@@ -200,21 +199,24 @@ export const styles = StyleSheet.create({
     fontFamily: "Poppins-Regular", // Custom font
   },
   button: {
-    backgroundColor: "#5EB14A", // Light green background
-    padding: 10,
-    borderRadius: 10,
+    flexDirection: "row",
     alignItems: "center",
-    marginVertical: 5,
+    justifyContent: "center",
+    padding: 10,
+    backgroundColor: "#5EB14A",
+    borderRadius: 10,
+    margin: 5,
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: "#fff",
+    fontWeight: "bold",
+    fontFamily: "Poppins-SemiBold",
     fontSize: 18,
-    fontFamily: "Poppins-SemiBold", // Custom font
+    marginLeft: 5,
   },
   rating: {
     marginVertical: 20,
   },
-
   headerTop: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -335,7 +337,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 10,
     textAlign: "center",
-    fontFamily: "Poppins-Regular", // Custom font
+    fontFamily: "Poppins-Regular",
   },
   closeButton: {
     backgroundColor: "#DDDDDD",
@@ -377,5 +379,36 @@ export const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     right: 0,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+    fontFamily: "Poppins-Regular",
+    color: "#333",
+  },
+  progressBarContainer: {
+    marginTop: 20,
+    marginBottom: 20,
+    width: "100%",
+    alignItems: "center",
+  },
+  imagePickerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  imagePickerButton: {
+    backgroundColor: "#ccc",
+    padding: 10,
+    borderRadius: 5,
+    width: "45%",
+    alignItems: "center",
+  },
+  imagePickerButtonText: {
+    color: "#000",
+  },
+  activeImagePickerButton: {
+    backgroundColor: "#4CAF50",
   },
 });

@@ -1,9 +1,9 @@
 {
   "auth": {
-    "user_pool_id": "ap-southeast-1_zqV7WSNWc",
+    "user_pool_id": "ap-southeast-1_FSYnLTju2",
     "aws_region": "ap-southeast-1",
-    "user_pool_client_id": "483aqthp9q7mletngtmrkhl15n",
-    "identity_pool_id": "ap-southeast-1:7e085ecb-5d4b-4fc5-ad4f-3384e5922ef3",
+    "user_pool_client_id": "6p1pvnfkeecdq2j997i685uvgu",
+    "identity_pool_id": "ap-southeast-1:45f17b69-ed90-4785-86be-86966e5fb24e",
     "mfa_methods": [],
     "standard_required_attributes": [
       "email"
@@ -25,9 +25,9 @@
     "unauthenticated_identities_enabled": true
   },
   "data": {
-    "url": "https://x5focf26ure7bgb3apzavpbmye.appsync-api.ap-southeast-1.amazonaws.com/graphql",
+    "url": "https://oi7zeymhqbhrbj22o3vr6r23wy.appsync-api.ap-southeast-1.amazonaws.com/graphql",
     "aws_region": "ap-southeast-1",
-    "api_key": "da2-b2rmy5qttfeqzngzhkdxnmahqm",
+    "api_key": "da2-wdg7rylrnbg3jpra6cgi7rgxdm",
     "default_authorization_type": "API_KEY",
     "authorization_types": [
       "AMAZON_COGNITO_USER_POOLS",
@@ -161,13 +161,6 @@
               "isRequired": false,
               "attributes": []
             },
-            "name": {
-              "name": "name",
-              "isArray": false,
-              "type": "String",
-              "isRequired": false,
-              "attributes": []
-            },
             "age": {
               "name": "age",
               "isArray": false,
@@ -191,6 +184,27 @@
             },
             "bmi": {
               "name": "bmi",
+              "isArray": false,
+              "type": "Float",
+              "isRequired": false,
+              "attributes": []
+            },
+            "chronicDisease": {
+              "name": "chronicDisease",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "healthGoal": {
+              "name": "healthGoal",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "targetWeight": {
+              "name": "targetWeight",
               "isArray": false,
               "type": "Float",
               "isRequired": false,
@@ -395,12 +409,12 @@
   },
   "storage": {
     "aws_region": "ap-southeast-1",
-    "bucket_name": "amplify-d2ads7vb3bnzm3-ma-amplifyteamdrivebucket28-bq6sv0vtvjh9"
+    "bucket_name": "amplify-healthyeats-mikhi-amplifyteamdrivebucket28-ae1tl4bd44ld"
   },
   "version": "1",
   "custom": {
     "API": {
-      "endpoint": "https://4k5plzfxs3.execute-api.ap-southeast-1.amazonaws.com/"
+      "endpoint": "https://t8yu6aop1e.execute-api.ap-southeast-1.amazonaws.com/"
     }
   }
 }
