@@ -157,6 +157,7 @@ export const styles = StyleSheet.create({
     height: 300,
     resizeMode: "contain",
     marginBottom: 20,
+    alignSelf: "center",
   },
   buttonContainer: {
     flexDirection: "row",
@@ -223,7 +224,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerContainer: {
-    padding: 5,
+    padding: 7,
     backgroundColor: "#E6F5E1",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
@@ -242,14 +243,11 @@ export const styles = StyleSheet.create({
     height: 40,
     resizeMode: "contain",
     position: "absolute",
-    left: "80%",
-    marginLeft: -30, // Half the width of the logo to center it
+    left: "90%",
   },
   signOutButton: {
     fontSize: 18,
     color: "#4CAF50",
-    flex: 1,
-    textAlign: "right",
     fontFamily: "Poppins-Bold", // Custom font
   },
   tabBar: {
@@ -321,17 +319,23 @@ export const styles = StyleSheet.create({
     fontFamily: "Poppins-Regular", // Custom font
   },
   modalContainer: {
-    padding: 20,
+    width: "90%",
     backgroundColor: "#fff",
     borderRadius: 10,
+    padding: 20,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modalTitle: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,
-    fontFamily: "Poppins-Bold", // Custom font
-    color: "#4CAF50", // Green color
+    fontFamily: "Poppins-Bold",
+    color: "#4CAF50",
   },
   modalText: {
     fontSize: 16,
@@ -344,11 +348,12 @@ export const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginTop: 20,
+    alignSelf: "flex-end",
   },
   closeButtonText: {
     fontSize: 18,
     textAlign: "center",
-    fontFamily: "Poppins-SemiBold", // Custom font
+    fontFamily: "Poppins-SemiBold",
   },
   bmiCategory: {
     fontSize: 18,
@@ -418,6 +423,21 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 10,
     alignSelf: "center",
+    backgroundColor: "#fff",
+  },
+  listHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: "#f1f1f1",
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    marginTop: 10,
+  },
+  headerText: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
   ingredientList: {
     paddingBottom: 20,
@@ -426,16 +446,21 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 10,
+    padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#CCCCCC",
+    backgroundColor: "#fff",
+    marginVertical: 2,
   },
   ingredientName: {
     fontSize: 16,
     fontWeight: "bold",
+    width: "70%", // Adjust the width to prevent text from cutting off
   },
   ingredientSize: {
     fontSize: 14,
     color: "#666",
+    width: "30%", // Adjust the width to prevent text from cutting off
+    textAlign: "right",
   },
 });

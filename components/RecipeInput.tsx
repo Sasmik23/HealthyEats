@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Modal, Platform, KeyboardAvoidingView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import { BlurView } from '@react-native-community/blur';
 import { styles } from '../styles/styles';
 import { Picker } from '@react-native-picker/picker';
 
@@ -77,14 +76,8 @@ const RecipeInput: React.FC<RecipeInputProps> = ({ fetchRecipe, setDishName, set
                 transparent={true}
                 animationType="slide"
             >
-                <BlurView
-                    style={styles.absolute}
-                    blurType="light"
-                    blurAmount={10}
-                    reducedTransparencyFallbackColor="white"
-                />
                 <KeyboardAvoidingView
-                    style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+                    style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 >
                     <View style={[styles.modalContainer, { width: '90%', padding: 20 }]}>

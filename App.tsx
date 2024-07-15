@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -23,11 +23,10 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ title }) => {
-  const { user, signOut } = useAuthenticator();
+  const { signOut } = useAuthenticator();
 
   return (
     <View style={styles.headerContainer}>
-      <Text style={styles.userName}>{user?.username?.split('@')[0]}</Text>
       <Image source={require('./assets/logo.png')} style={styles.logo} />
       <TouchableOpacity onPress={signOut}>
         <Text style={styles.signOutButton}>Sign Out</Text>
@@ -89,13 +88,14 @@ const App = () => {
           <Stack.Navigator
             screenOptions={{
               headerTitleAlign: 'center',
+              header: ({ route }) => <Header title={route.name} />, // Ensure header is set here
             }}
           >
             <Stack.Screen
               name="Home"
               component={HomeTabs}
               options={{
-                header: ({ route }) => <Header title={route.name} />,
+                header: ({ route }) => <Header title={route.name} />, // Ensure header is set here
               }}
             />
           </Stack.Navigator>
