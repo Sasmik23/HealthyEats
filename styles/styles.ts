@@ -411,4 +411,31 @@ export const styles = StyleSheet.create({
   activeImagePickerButton: {
     backgroundColor: "#4CAF50",
   },
+  searchInput: {
+    width: "90%",
+    padding: 10,
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 10,
+    alignSelf: "center",
+  },
+  ingredientList: {
+    paddingBottom: 20,
+  },
+  ingredientItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#CCCCCC",
+  },
+  ingredientName: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  ingredientSize: {
+    fontSize: 14,
+    color: "#666",
+  },
 });

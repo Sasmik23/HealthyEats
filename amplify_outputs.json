@@ -1,9 +1,9 @@
 {
   "auth": {
-    "user_pool_id": "ap-southeast-1_FSYnLTju2",
+    "user_pool_id": "ap-southeast-1_zsVTgekrQ",
     "aws_region": "ap-southeast-1",
-    "user_pool_client_id": "6p1pvnfkeecdq2j997i685uvgu",
-    "identity_pool_id": "ap-southeast-1:45f17b69-ed90-4785-86be-86966e5fb24e",
+    "user_pool_client_id": "11gnbnpqun3vcal0cp3vglecc3",
+    "identity_pool_id": "ap-southeast-1:092ab312-6461-46a8-970d-e21091982c46",
     "mfa_methods": [],
     "standard_required_attributes": [
       "email"
@@ -25,9 +25,9 @@
     "unauthenticated_identities_enabled": true
   },
   "data": {
-    "url": "https://oi7zeymhqbhrbj22o3vr6r23wy.appsync-api.ap-southeast-1.amazonaws.com/graphql",
+    "url": "https://whyvsro7q5aorm3vlso6bbwasi.appsync-api.ap-southeast-1.amazonaws.com/graphql",
     "aws_region": "ap-southeast-1",
-    "api_key": "da2-wdg7rylrnbg3jpra6cgi7rgxdm",
+    "api_key": "da2-dkwlsjmydzd4lnfbsbm3anyy2m",
     "default_authorization_type": "API_KEY",
     "authorization_types": [
       "AMAZON_COGNITO_USER_POOLS",
@@ -401,6 +401,78 @@
             "primaryKeyFieldName": "id",
             "sortKeyFieldNames": []
           }
+        },
+        "Ingredients": {
+          "name": "Ingredients",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "brandAndProductName": {
+              "name": "brandAndProductName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "packageSize": {
+              "name": "packageSize",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Ingredients",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
         }
       },
       "enums": {},
@@ -409,12 +481,12 @@
   },
   "storage": {
     "aws_region": "ap-southeast-1",
-    "bucket_name": "amplify-healthyeats-mikhi-amplifyteamdrivebucket28-ae1tl4bd44ld"
+    "bucket_name": "amplify-healthyeats-mikhi-amplifyteamdrivebucket28-v1cybh0bufmz"
   },
   "version": "1",
   "custom": {
     "API": {
-      "endpoint": "https://t8yu6aop1e.execute-api.ap-southeast-1.amazonaws.com/"
+      "endpoint": "https://uixejxrr3b.execute-api.ap-southeast-1.amazonaws.com/"
     }
   }
 }

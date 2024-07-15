@@ -1,5 +1,4 @@
 import { a, defineData, ClientSchema } from "@aws-amplify/backend";
-
 const schema = a.schema({
   Dish: a
     .model({
@@ -20,9 +19,9 @@ const schema = a.schema({
       weight: a.float(),
       height: a.float(),
       bmi: a.float(),
-      chronicDisease: a.string(), // Added chronicDisease field
-      healthGoal: a.string(), // Added healthGoal field
-      targetWeight: a.float(), // Added targetWeight field
+      chronicDisease: a.string(),
+      healthGoal: a.string(),
+      targetWeight: a.float(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
   HealthyEateries: a
@@ -38,6 +37,12 @@ const schema = a.schema({
       addressFloorNumber: a.string(),
       addressUnitNumber: a.string(),
       coordinates: a.string(),
+    })
+    .authorization((allow) => [allow.publicApiKey()]),
+  Ingredients: a
+    .model({
+      brandAndProductName: a.string(), // Partition key
+      packageSize: a.string(), // Sort key
     })
     .authorization((allow) => [allow.publicApiKey()]),
 });
