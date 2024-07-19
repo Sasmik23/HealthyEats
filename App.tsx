@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -46,13 +47,13 @@ const HomeTabs = () => {
             case 'Profile':
               iconName = focused ? 'person' : 'person-outline';
               break;
-            case 'Locator':
+            case 'Eateries':
               iconName = focused ? 'navigate' : 'navigate-outline';
               break;
-            case 'Recipe':
+            case 'Recipes':
               iconName = focused ? 'restaurant' : 'restaurant-outline';
               break;
-            case 'Ingredients':
+            case 'Products':
               iconName = focused ? 'list' : 'list-outline';
               break;
             default:
@@ -68,9 +69,9 @@ const HomeTabs = () => {
       })}
     >
       <Tab.Screen name="Profile" component={ProfileScreen} />
-      <Tab.Screen name="Locator" component={LocatorScreen} />
-      <Tab.Screen name="Recipe" component={RecipeScreen} />
-      <Tab.Screen name="Ingredients" component={IngredientsScreen} />
+      <Tab.Screen name="Eateries" component={LocatorScreen} />
+      <Tab.Screen name="Recipes" component={RecipeScreen} />
+      <Tab.Screen name="Products" component={IngredientsScreen} />
     </Tab.Navigator>
   );
 };
@@ -106,3 +107,4 @@ const App = () => {
 };
 
 export default App;
+

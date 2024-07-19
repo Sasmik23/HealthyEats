@@ -1,7 +1,7 @@
 import React from 'react';
 import { SafeAreaView, Text } from 'react-native';
 import { styles } from '../styles/styles';
-import RecipeFinder from './RecipeFinder';
+import RecipeFinder from '../components/RecipeFinder';
 
 const DishList: React.FC = () => {
     return (

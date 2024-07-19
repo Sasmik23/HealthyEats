@@ -67,6 +67,9 @@ const IngredientsScreen: React.FC = () => {
                 value={searchQuery}
                 onChangeText={setSearchQuery}
             />
+            <View style={styles.listHeader}>
+                <Text style={styles.headerText}>Ingredients</Text>
+            </View>
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (

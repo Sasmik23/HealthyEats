@@ -1,9 +1,9 @@
 {
   "auth": {
-    "user_pool_id": "ap-southeast-1_zsVTgekrQ",
+    "user_pool_id": "ap-southeast-1_Np2695RVF",
     "aws_region": "ap-southeast-1",
-    "user_pool_client_id": "11gnbnpqun3vcal0cp3vglecc3",
-    "identity_pool_id": "ap-southeast-1:092ab312-6461-46a8-970d-e21091982c46",
+    "user_pool_client_id": "419hn841jnn7qcieddto0iruo",
+    "identity_pool_id": "ap-southeast-1:d219e898-bb61-4f5c-8d69-177f9a5ae700",
     "mfa_methods": [],
     "standard_required_attributes": [
       "email"
@@ -25,9 +25,9 @@
     "unauthenticated_identities_enabled": true
   },
   "data": {
-    "url": "https://whyvsro7q5aorm3vlso6bbwasi.appsync-api.ap-southeast-1.amazonaws.com/graphql",
+    "url": "https://bdsttusdyjfzjc65knolppuljy.appsync-api.ap-southeast-1.amazonaws.com/graphql",
     "aws_region": "ap-southeast-1",
-    "api_key": "da2-dkwlsjmydzd4lnfbsbm3anyy2m",
+    "api_key": "da2-n4w6z3vkxjcpfjuxfznnmwz3y4",
     "default_authorization_type": "API_KEY",
     "authorization_types": [
       "AMAZON_COGNITO_USER_POOLS",
@@ -36,8 +36,8 @@
     "model_introspection": {
       "version": 1,
       "models": {
-        "Dish": {
-          "name": "Dish",
+        "Recipe": {
+          "name": "Recipe",
           "fields": {
             "id": {
               "name": "id",
@@ -53,31 +53,43 @@
               "isRequired": false,
               "attributes": []
             },
-            "recipe": {
-              "name": "recipe",
+            "ingredients": {
+              "name": "ingredients",
+              "isArray": true,
+              "type": "String",
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            },
+            "cuisine": {
+              "name": "cuisine",
               "isArray": false,
               "type": "String",
               "isRequired": false,
               "attributes": []
             },
-            "rating": {
-              "name": "rating",
-              "isArray": false,
-              "type": "Float",
+            "steps": {
+              "name": "steps",
+              "isArray": true,
+              "type": "String",
               "isRequired": false,
-              "attributes": []
+              "attributes": [],
+              "isArrayNullable": true
             },
-            "ratingCount": {
-              "name": "ratingCount",
-              "isArray": false,
-              "type": "Int",
+            "healthy_cooking_tips": {
+              "name": "healthy_cooking_tips",
+              "isArray": true,
+              "type": "String",
               "isRequired": false,
-              "attributes": []
+              "attributes": [],
+              "isArrayNullable": true
             },
-            "calories": {
-              "name": "calories",
+            "nutrition_information": {
+              "name": "nutrition_information",
               "isArray": false,
-              "type": "Float",
+              "type": {
+                "nonModel": "RecipeNutrition_information"
+              },
               "isRequired": false,
               "attributes": []
             },
@@ -99,7 +111,7 @@
             }
           },
           "syncable": true,
-          "pluralName": "Dishes",
+          "pluralName": "Recipes",
           "attributes": [
             {
               "type": "model",
@@ -207,6 +219,27 @@
               "name": "targetWeight",
               "isArray": false,
               "type": "Float",
+              "isRequired": false,
+              "attributes": []
+            },
+            "points": {
+              "name": "points",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "referralCode": {
+              "name": "referralCode",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "redeemed": {
+              "name": "redeemed",
+              "isArray": false,
+              "type": "Boolean",
               "isRequired": false,
               "attributes": []
             },
@@ -476,17 +509,86 @@
         }
       },
       "enums": {},
-      "nonModels": {}
+      "nonModels": {
+        "RecipeNutrition_information": {
+          "name": "RecipeNutrition_information",
+          "fields": {
+            "servings_per_dish": {
+              "name": "servings_per_dish",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "energy": {
+              "name": "energy",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "carbohydrate": {
+              "name": "carbohydrate",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "protein": {
+              "name": "protein",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "total_fat": {
+              "name": "total_fat",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "saturated_fat": {
+              "name": "saturated_fat",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "cholesterol": {
+              "name": "cholesterol",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "dietary_fibre": {
+              "name": "dietary_fibre",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "sodium": {
+              "name": "sodium",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        }
+      }
     }
   },
   "storage": {
     "aws_region": "ap-southeast-1",
-    "bucket_name": "amplify-healthyeats-mikhi-amplifyteamdrivebucket28-v1cybh0bufmz"
+    "bucket_name": "amplify-healthyeats-mikhi-amplifyteamdrivebucket28-9oqchwcm0p39"
   },
   "version": "1",
   "custom": {
     "API": {
-      "endpoint": "https://uixejxrr3b.execute-api.ap-southeast-1.amazonaws.com/"
+      "endpoint": "https://ge613p40ah.execute-api.ap-southeast-1.amazonaws.com/"
     }
   }
 }

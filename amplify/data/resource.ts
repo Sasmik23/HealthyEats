@@ -1,13 +1,25 @@
 import { a, defineData, ClientSchema } from "@aws-amplify/backend";
+
 const schema = a.schema({
-  Dish: a
+  Recipe: a
     .model({
       id: a.id(),
       dishName: a.string(),
-      recipe: a.string(),
-      rating: a.float(),
-      ratingCount: a.integer(),
-      calories: a.float(),
+      ingredients: a.string().array(),
+      cuisine: a.string(),
+      steps: a.string().array(),
+      healthy_cooking_tips: a.string().array(),
+      nutrition_information: a.customType({
+        servings_per_dish: a.integer(),
+        energy: a.string(),
+        carbohydrate: a.string(),
+        protein: a.string(),
+        total_fat: a.string(),
+        saturated_fat: a.string(),
+        cholesterol: a.string(),
+        dietary_fibre: a.string(),
+        sodium: a.string(),
+      }),
     })
     .authorization((allow) => [allow.publicApiKey()]),
   Profile: a
@@ -22,6 +34,9 @@ const schema = a.schema({
       chronicDisease: a.string(),
       healthGoal: a.string(),
       targetWeight: a.float(),
+      points: a.integer(),
+      referralCode: a.string(),
+      redeemed: a.boolean(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
   HealthyEateries: a
@@ -41,8 +56,8 @@ const schema = a.schema({
     .authorization((allow) => [allow.publicApiKey()]),
   Ingredients: a
     .model({
-      brandAndProductName: a.string(), // Partition key
-      packageSize: a.string(), // Sort key
+      brandAndProductName: a.string(),
+      packageSize: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
 });

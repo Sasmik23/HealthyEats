@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TextInput, TouchableOpacity, Image, FlatList, Alert } from 'react-native';
+import { SafeAreaView, View, Text, TextInput, TouchableOpacity, Image, Alert, FlatList, StyleSheet } from 'react-native';
 import { useAuthenticator } from '@aws-amplify/ui-react-native';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../amplify/data/resource';
 import { Picker } from '@react-native-picker/picker';
 import MultiSelect from 'react-native-multiple-select';
 import ProgressBar from 'react-native-progress/Bar';
-import { styles } from '../styles/styles';
 import { v4 as uuidv4 } from 'uuid';
 
 const client = generateClient<Schema>();
+
+const generateReferralCode = () => {
+    return uuidv4().slice(0, 8); // Generate an 8-character referral code
+};
 
 const ProfileScreen: React.FC = () => {
     const { user } = useAuthenticator();
@@ -17,6 +20,7 @@ const ProfileScreen: React.FC = () => {
     const [chronicDiseases, setChronicDiseases] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [editMode, setEditMode] = useState<boolean>(false);
+    const [referralCodeInput, setReferralCodeInput] = useState<string>('');
     const chronicDiseasesList = [
         { id: 'htn', name: 'Hypertension (HTN)' },
         { id: 'hld', name: 'Hyperlipidemia (HLD)' },
@@ -35,6 +39,11 @@ const ProfileScreen: React.FC = () => {
                     const fetchedProfile = profileData[0];
                     setProfile(fetchedProfile);
                     setChronicDiseases(fetchedProfile.chronicDisease ? fetchedProfile.chronicDisease.split(',') : []);
+                    if (!fetchedProfile.referralCode) {
+                        const updatedProfile = { ...fetchedProfile, referralCode: generateReferralCode() };
+                        await client.models.Profile.update(updatedProfile);
+                        setProfile(updatedProfile);
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching profile:', error);
@@ -56,12 +65,13 @@ const ProfileScreen: React.FC = () => {
                 chronicDisease: chronicDiseases.join(','), // Save as a comma-separated string
             };
 
-            console.log('Updated Profile:', updatedProfile);
-
             if (profile.id) {
                 await client.models.Profile.update(updatedProfile);
             } else {
                 updatedProfile.id = uuidv4();
+                updatedProfile.points = 0;
+                updatedProfile.referralCode = generateReferralCode();
+                updatedProfile.redeemed = false;
                 await client.models.Profile.create(updatedProfile);
             }
 
@@ -97,6 +107,47 @@ const ProfileScreen: React.FC = () => {
         if (bmi < 18.5) return { text: "Low", style: styles.bmiLow };
         if (bmi >= 18.5 && bmi < 22.9) return { text: "Normal", style: styles.bmiNormal };
         return { text: "High", style: styles.bmiHigh };
+    };
+
+    const handleRedeemReferral = async () => {
+        if (!referralCodeInput) {
+            Alert.alert('Error', 'Please enter a referral code.');
+            return;
+        }
+
+        if (profile.redeemed) {
+            Alert.alert('Error', 'You have already redeemed a referral code.');
+            return;
+        }
+
+        if (referralCodeInput === profile.referralCode) {
+            Alert.alert('Error', 'You cannot redeem your own referral code.');
+            return;
+        }
+
+        try {
+            const { data: refereeProfileData, errors } = await client.models.Profile.list({
+                filter: { referralCode: { eq: referralCodeInput } },
+            });
+
+            if (errors || refereeProfileData.length === 0) {
+                Alert.alert('Error', 'Invalid referral code.');
+                return;
+            }
+
+            const refereeProfile = refereeProfileData[0];
+            refereeProfile.points = (refereeProfile.points || 0) + 10;
+            const updatedProfile = { ...profile, points: (profile.points || 0) + 10, redeemed: true };
+
+            await client.models.Profile.update(refereeProfile);
+            await client.models.Profile.update(updatedProfile);
+
+            setProfile(updatedProfile);
+            Alert.alert('Success', 'Referral code redeemed successfully.');
+        } catch (error) {
+            console.error('Error redeeming referral code:', error);
+            Alert.alert('Error', 'Error redeeming referral code. Please try again.');
+        }
     };
 
     if (loading) {
@@ -135,7 +186,10 @@ const ProfileScreen: React.FC = () => {
             value: profile.bmi ? profile.bmi.toFixed(2) : 'N/A',
             category: bmiCategory ? bmiCategory.text : '',
             categoryStyle: bmiCategory ? bmiCategory.style : null
-        }
+        },
+        { key: 'Points', value: profile.points || 0 },
+        { key: 'Referral Code', value: profile.referralCode || 'N/A' },
+        { key: 'Redeemed', value: profile.redeemed ? 'Yes' : 'No' },
     ];
 
     return (
@@ -145,7 +199,7 @@ const ProfileScreen: React.FC = () => {
                 keyExtractor={(item) => item.key}
                 ListHeaderComponent={() => (
                     <>
-                        <Image source={require('../assets/logo.png')} style={styles.profileLogo} />
+                        <Image source={require('../assets/mascot2.png')} style={styles.profileLogo} />
                         <View style={styles.profileContainer}>
                             <Text style={styles.welcomeText}>Welcome, {user?.signInDetails?.loginId?.split('@')[0]}</Text>
                             {editMode ? (
@@ -216,8 +270,9 @@ const ProfileScreen: React.FC = () => {
                             ) : (
                                 <>
                                     {profileData.map((item) => (
-                                        <View key={item.key}>
-                                            <Text style={styles.profileText}>{item.key}: {item.value} {item.category ? <Text style={item.categoryStyle}>({item.category})</Text> : null}</Text>
+                                        <View key={item.key} style={styles.profileItem}>
+                                            <Text style={styles.profileLabel}>{item.key}:</Text>
+                                            <Text style={styles.profileValue}>{item.value} {item.category ? <Text style={item.categoryStyle}>({item.category})</Text> : null}</Text>
                                         </View>
                                     ))}
                                     {profile.healthGoal && profile.targetWeight && (
@@ -228,9 +283,22 @@ const ProfileScreen: React.FC = () => {
                                             <ProgressBar progress={progress} width={200} color="#4CAF50" />
                                         </View>
                                     )}
-                                    <TouchableOpacity style={styles.button} onPress={() => setEditMode(true)}>
+                                    <TouchableOpacity style={styles.editButton} onPress={() => setEditMode(true)}>
                                         <Text style={styles.buttonText}>Edit Profile</Text>
                                     </TouchableOpacity>
+                                    {!profile.redeemed && (
+                                        <View style={styles.referralContainer}>
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="Enter referral code"
+                                                value={referralCodeInput}
+                                                onChangeText={setReferralCodeInput}
+                                            />
+                                            <TouchableOpacity style={styles.redeemButton} onPress={handleRedeemReferral}>
+                                                <Text style={styles.buttonText}>Redeem Referral Points</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    )}
                                 </>
                             )}
                         </View>
@@ -253,3 +321,111 @@ const ProfileScreen: React.FC = () => {
 };
 
 export default ProfileScreen;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#E6F5E1',
+    },
+    profileLogo: {
+        width: 100,
+        height: 150,
+        alignSelf: 'center',
+    },
+    profileContainer: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        marginHorizontal: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 5,
+    },
+    welcomeText: {
+        fontSize: 25,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        textAlign: 'center',
+        color: '#4CAF50',
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 10,
+        marginVertical: 10,
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginTop: 10,
+        color: '#4CAF50',
+    },
+    button: {
+        backgroundColor: '#4CAF50',
+        padding: 15,
+        borderRadius: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 10,
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    editButton: {
+        backgroundColor: '#4CAF50',
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 10,
+    },
+    redeemButton: {
+        backgroundColor: '#A5D6A7',
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 10,
+    },
+    referralContainer: {
+        marginVertical: 20,
+    },
+    profileItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: 5,
+    },
+    profileLabel: {
+        fontWeight: 'bold',
+        color: '#4CAF50',
+        fontSize: 20,
+
+    },
+    profileValue: {
+        color: '#333',
+        fontSize: 20,
+
+    },
+    profileText: {
+        fontSize: 18,
+        color: '#333',
+        marginVertical: 5,
+    },
+    progressBarContainer: {
+        alignItems: 'center',
+        marginVertical: 20,
+    },
+    bmiLow: {
+        color: '#FFA726',
+    },
+    bmiNormal: {
+        color: '#66BB6A',
+    },
+    bmiHigh: {
+        color: '#EF5350',
+    },
+});

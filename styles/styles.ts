@@ -1,3 +1,4 @@
+// Styles file
 import { StyleSheet, Dimensions } from "react-native";
 
 const screenHeight = Dimensions.get("window").height;
@@ -159,11 +160,13 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     alignSelf: "center",
   },
+  /*
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
     padding: 10,
   },
+  */
   modalBackground: {
     flex: 1,
     justifyContent: "center",
@@ -188,6 +191,9 @@ export const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#CCCCCC",
+    backgroundColor: "#fff",
+    marginVertical: 2,
+    width: "100%",
   },
   recipeItemText: {
     fontSize: 18,
@@ -272,16 +278,23 @@ export const styles = StyleSheet.create({
     padding: 10,
   },
   filterContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
+    width: "90%",
+    alignSelf: "center",
+    backgroundColor: "#f1f1f1",
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  filterLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginVertical: 5,
   },
   picker: {
     height: 50,
-    width: screenWidth / 2.2,
     backgroundColor: "#fff",
     borderRadius: 5,
+    marginBottom: 10,
   },
   restaurantList: {
     paddingBottom: 20,
@@ -336,11 +349,12 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
     fontFamily: "Poppins-Bold",
     color: "#4CAF50",
+    alignSelf: "center",
   },
   modalText: {
     fontSize: 16,
     marginBottom: 10,
-    textAlign: "center",
+    textAlign: "left",
     fontFamily: "Poppins-Regular",
   },
   closeButton: {
@@ -417,7 +431,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "#4CAF50",
   },
   searchInput: {
-    width: "90%",
+    width: "100%",
     padding: 10,
     borderWidth: 1,
     borderRadius: 5,
@@ -462,5 +476,87 @@ export const styles = StyleSheet.create({
     color: "#666",
     width: "30%", // Adjust the width to prevent text from cutting off
     textAlign: "right",
+  },
+  recipeList: {
+    paddingBottom: 20,
+    width: "100%",
+  },
+  recipeName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    width: "70%", // Adjust the width to prevent text from cutting off
+  },
+  recipeDetails: {
+    fontSize: 14,
+    color: "#666",
+    width: "30%", // Adjust the width to prevent text from cutting off
+    textAlign: "right",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  scrollViewContent: {
+    paddingBottom: 20,
+  },
+  cuisineText: {
+    fontSize: 14,
+    color: "#666",
+  },
+  selectedIngredients: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginVertical: 10,
+  },
+  selectedIngredient: {
+    backgroundColor: "#e0e0e0",
+    padding: 8,
+    margin: 4,
+    borderRadius: 4,
+  },
+  searchButton: {
+    backgroundColor: "#4CAF50",
+    padding: 10,
+    borderRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+    marginRight: 10,
+  },
+  addButton: {
+    backgroundColor: "#4CAF50",
+    padding: 10,
+    borderRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+  addButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  resetButton: {
+    backgroundColor: "#A5D6A7",
+    padding: 10,
+    borderRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+  resetButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
