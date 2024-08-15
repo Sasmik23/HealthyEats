@@ -33,7 +33,6 @@ const LocatorScreen: React.FC = () => {
     const [restaurants, setRestaurants] = useState<HealthyEateryWithDistance[]>([]);
     const [selectedRestaurant, setSelectedRestaurant] = useState<HealthyEateryWithDistance | null>(null);
     const [maxDistance, setMaxDistance] = useState<string>('10000'); // Default to 10km
-    const [sortOrder, setSortOrder] = useState<string>('asc');
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
@@ -44,7 +43,7 @@ const LocatorScreen: React.FC = () => {
         if (location) {
             fetchRestaurants();
         }
-    }, [location, maxDistance, sortOrder]);
+    }, [location, maxDistance]);
 
     const requestLocationPermission = async () => {
         if (Platform.OS === 'web') {
@@ -159,7 +158,7 @@ const LocatorScreen: React.FC = () => {
                 }
             }).filter(restaurant => restaurant.distance! <= maxDist);
 
-            const sortedRestaurants = restaurantsWithDistance.sort((a, b) => sortOrder === 'asc' ? a.distance! - b.distance! : b.distance! - a.distance!);
+            const sortedRestaurants = restaurantsWithDistance.sort((a, b) => a.distance! - b.distance!);
             setRestaurants(sortedRestaurants);
         } catch (error) {
             console.error('Error fetching restaurants:', error);
@@ -193,14 +192,6 @@ const LocatorScreen: React.FC = () => {
                     <Picker.Item label="Within 10 km" value="10000" />
                     <Picker.Item label="Within 20 km" value="20000" />
                     <Picker.Item label="Beyond 20 km" value="100000000000" />
-                </Picker>
-                <Picker
-                    selectedValue={sortOrder}
-                    style={styles.picker}
-                    onValueChange={(itemValue) => setSortOrder(itemValue)}
-                >
-                    <Picker.Item label="Sort by Distance: Ascending" value="asc" />
-                    <Picker.Item label="Sort by Distance: Descending" value="desc" />
                 </Picker>
             </View>
             {loading ? (
