@@ -41,6 +41,7 @@ const RecipesScreen: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+    const [isFilterExpanded, setIsFilterExpanded] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -102,6 +103,7 @@ const RecipesScreen: React.FC = () => {
             }
 
             setFilteredRecipes(filtered);
+            setIsFilterExpanded(false); // Collapse filter section after search
         } catch (error) {
             console.error('Error filtering recipes:', error);
         } finally {
@@ -177,50 +179,57 @@ const RecipesScreen: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.filterContainer}>
-                <Text style={styles.filterLabel}>Search by Name:</Text>
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="e.g., Spaghetti"
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                />
-                <Text style={styles.filterLabel}>Add Ingredient:</Text>
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="e.g., Tomato"
-                    value={searchIngredient}
-                    onChangeText={setSearchIngredient}
-                />
-                <TouchableOpacity style={styles.addButton} onPress={handleAddIngredient}>
-                    <Text style={styles.addButtonText}>Add</Text>
+            {isFilterExpanded && (
+                <View style={styles.filterContainer}>
+                    <Text style={styles.filterLabel}>Search by Name:</Text>
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="e.g., Spaghetti"
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                    <Text style={styles.filterLabel}>Add Ingredient:</Text>
+                    <TextInput
+                        style={styles.searchInput}
+                        placeholder="e.g., Tomato"
+                        value={searchIngredient}
+                        onChangeText={setSearchIngredient}
+                    />
+                    <TouchableOpacity style={styles.addButton} onPress={handleAddIngredient}>
+                        <Text style={styles.addButtonText}>Add</Text>
+                    </TouchableOpacity>
+                    <View style={styles.selectedIngredients}>
+                        {ingredients.map((ingredient, index) => (
+                            <Text key={index} style={styles.selectedIngredient}>{ingredient}</Text>
+                        ))}
+                    </View>
+                    <Text style={styles.filterLabel}>Select Cuisine:</Text>
+                    <Picker
+                        selectedValue={selectedCuisine}
+                        onValueChange={(itemValue) => setSelectedCuisine(itemValue)}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="All Cuisines" value="" />
+                        <Picker.Item label="Asian" value="asian" />
+                        <Picker.Item label="Indian" value="indian" />
+                        <Picker.Item label="International" value="international" />
+                        <Picker.Item label="Western" value="western" />
+                    </Picker>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+                            <Ionicons name="search" size={24} color="white" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
+                            <Text style={styles.resetButtonText}>Reset</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
+            {!isFilterExpanded && (
+                <TouchableOpacity style={styles.expandButton} onPress={() => setIsFilterExpanded(true)}>
+                    <Text style={styles.expandButtonText}>Expand Filters</Text>
                 </TouchableOpacity>
-                <View style={styles.selectedIngredients}>
-                    {ingredients.map((ingredient, index) => (
-                        <Text key={index} style={styles.selectedIngredient}>{ingredient}</Text>
-                    ))}
-                </View>
-                <Text style={styles.filterLabel}>Select Cuisine:</Text>
-                <Picker
-                    selectedValue={selectedCuisine}
-                    onValueChange={(itemValue) => setSelectedCuisine(itemValue)}
-                    style={styles.picker}
-                >
-                    <Picker.Item label="All Cuisines" value="" />
-                    <Picker.Item label="Asian" value="asian" />
-                    <Picker.Item label="Indian" value="indian" />
-                    <Picker.Item label="International" value="international" />
-                    <Picker.Item label="Western" value="western" />
-                </Picker>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-                        <Ionicons name="search" size={24} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-                        <Text style={styles.resetButtonText}>Reset</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
+            )}
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
@@ -239,3 +248,4 @@ const RecipesScreen: React.FC = () => {
 };
 
 export default RecipesScreen;
+

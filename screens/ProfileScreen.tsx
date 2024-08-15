@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TextInput, TouchableOpacity, Image, Alert, FlatList, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { SafeAreaView, View, Text, TextInput, TouchableOpacity, Image, Alert, Modal, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useAuthenticator } from '@aws-amplify/ui-react-native';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../amplify/data/resource';
@@ -7,6 +7,7 @@ import { Picker } from '@react-native-picker/picker';
 import MultiSelect from 'react-native-multiple-select';
 import ProgressBar from 'react-native-progress/Bar';
 import { v4 as uuidv4 } from 'uuid';
+import { styles } from './ProfileScreenStyles';
 
 const client = generateClient<Schema>();
 
@@ -21,6 +22,9 @@ const ProfileScreen: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [editMode, setEditMode] = useState<boolean>(false);
     const [referralCodeInput, setReferralCodeInput] = useState<string>('');
+    const [isReferralModalVisible, setReferralModalVisible] = useState<boolean>(false);
+    const [tempProfile, setTempProfile] = useState<any>({}); // Temporary profile state for edits
+
     const chronicDiseasesList = [
         { id: 'htn', name: 'Hypertension (HTN)' },
         { id: 'hld', name: 'Hyperlipidemia (HLD)' },
@@ -39,10 +43,12 @@ const ProfileScreen: React.FC = () => {
                     const fetchedProfile = profileData[0];
                     setProfile(fetchedProfile);
                     setChronicDiseases(fetchedProfile.chronicDisease ? fetchedProfile.chronicDisease.split(',') : []);
+                    setTempProfile(fetchedProfile);
                     if (!fetchedProfile.referralCode) {
                         const updatedProfile = { ...fetchedProfile, referralCode: generateReferralCode() };
                         await client.models.Profile.update(updatedProfile);
                         setProfile(updatedProfile);
+                        setTempProfile(updatedProfile);
                     }
                 }
             } catch (error) {
@@ -56,12 +62,18 @@ const ProfileScreen: React.FC = () => {
     }, [user]);
 
     const handleSaveProfile = async () => {
+        const { age, weight, height, targetWeight } = tempProfile;
+        if (!age || !weight || !height || (tempProfile.healthGoal && !targetWeight)) {
+            Alert.alert('Error', 'Please fill in all required fields.');
+            return;
+        }
+
         setLoading(true);
         try {
             const updatedProfile = {
-                ...profile,
+                ...tempProfile,
                 userId: user?.signInDetails?.loginId,
-                bmi: profile.weight && profile.height ? profile.weight / ((profile.height / 100) * (profile.height / 100)) : null,
+                bmi: weight && height ? weight / ((height / 100) * (height / 100)) : null,
                 chronicDisease: chronicDiseases.join(','), // Save as a comma-separated string
             };
 
@@ -85,19 +97,9 @@ const ProfileScreen: React.FC = () => {
         }
     };
 
-    const handleInputChange = (key: string, value: any) => {
-        setProfile((prevProfile: any) => {
-            const updatedProfile = { ...prevProfile, [key]: value };
-            if (key === 'weight' || key === 'height') {
-                const weight = key === 'weight' ? value : prevProfile.weight;
-                const height = key === 'height' ? value : prevProfile.height;
-                if (weight && height) {
-                    updatedProfile.bmi = weight / ((height / 100) * (height / 100)); // Convert height to meters
-                }
-            }
-            return updatedProfile;
-        });
-    };
+    const handleInputChange = useCallback((key: string, value: any) => {
+        setTempProfile((prevProfile: any) => ({ ...prevProfile, [key]: value }));
+    }, []);
 
     const getValue = (value: any) => {
         return value == null || isNaN(value) ? '' : value.toString();
@@ -144,10 +146,19 @@ const ProfileScreen: React.FC = () => {
 
             setProfile(updatedProfile);
             Alert.alert('Success', 'Referral code redeemed successfully.');
+            setReferralModalVisible(false); // Close the modal
         } catch (error) {
             console.error('Error redeeming referral code:', error);
             Alert.alert('Error', 'Error redeeming referral code. Please try again.');
         }
+    };
+
+    const openReferralModal = () => {
+        setReferralModalVisible(true);
+    };
+
+    const closeReferralModal = () => {
+        setReferralModalVisible(false);
     };
 
     if (loading) {
@@ -167,7 +178,7 @@ const ProfileScreen: React.FC = () => {
             progress = profile.weight > profile.targetWeight ? profile.targetWeight / profile.weight : 1;
             progressDescription = profile.weight <= profile.targetWeight
                 ? "Target achieved!"
-                : `Need to lose ${(profile.weight - profile.targetWeight).toFixed(1)} kg`;
+                : `Almost there! ${(profile.weight - profile.targetWeight).toFixed(1)} kg to target `;
         } else if (profile.healthGoal === 'gain_weight') {
             progress = profile.weight < profile.targetWeight ? profile.weight / profile.targetWeight : 1;
             progressDescription = profile.weight >= profile.targetWeight
@@ -188,43 +199,77 @@ const ProfileScreen: React.FC = () => {
             categoryStyle: bmiCategory ? bmiCategory.style : null
         },
         { key: 'Points', value: profile.points || 0 },
-        { key: 'Referral Code', value: profile.referralCode || 'N/A' },
-        { key: 'Redeemed', value: profile.redeemed ? 'Yes' : 'No' },
+        { key: 'Your Referral Code', value: profile.referralCode || 'N/A' },
     ];
 
     return (
         <SafeAreaView style={styles.container}>
-            <FlatList
-                data={profileData}
-                keyExtractor={(item) => item.key}
-                ListHeaderComponent={() => (
-                    <>
-                        <Image source={require('../assets/mascot2.png')} style={styles.profileLogo} />
-                        <View style={styles.profileContainer}>
-                            <Text style={styles.welcomeText}>Welcome, {user?.signInDetails?.loginId?.split('@')[0]}</Text>
-                            {editMode ? (
-                                <>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={styles.keyboardAvoidingView}
+            >
+                <ScrollView contentContainerStyle={styles.scrollContainer}>
+                    <Image source={require('../assets/mascot2.png')} style={styles.profileLogo} />
+                    <View style={styles.profileContainer}>
+                        <Text style={styles.welcomeText}>Welcome, {user?.signInDetails?.loginId?.split('@')[0]}</Text>
+                        {editMode ? (
+                            <>
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>Age</Text>
                                     <TextInput
                                         style={styles.input}
                                         placeholder="Age"
                                         keyboardType="numeric"
-                                        value={getValue(profile.age)}
+                                        value={getValue(tempProfile.age)}
                                         onChangeText={(text) => handleInputChange('age', parseInt(text))}
                                     />
+                                </View>
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>Weight (kg)</Text>
                                     <TextInput
                                         style={styles.input}
                                         placeholder="Weight (kg)"
                                         keyboardType="numeric"
-                                        value={getValue(profile.weight)}
+                                        value={getValue(tempProfile.weight)}
                                         onChangeText={(text) => handleInputChange('weight', parseFloat(text))}
                                     />
+                                </View>
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>Height (cm)</Text>
                                     <TextInput
                                         style={styles.input}
                                         placeholder="Height (cm)"
                                         keyboardType="numeric"
-                                        value={getValue(profile.height)}
+                                        value={getValue(tempProfile.height)}
                                         onChangeText={(text) => handleInputChange('height', parseFloat(text))}
                                     />
+                                </View>
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>Health Goals</Text>
+                                    <Picker
+                                        selectedValue={tempProfile.healthGoal}
+                                        style={styles.input}
+                                        onValueChange={(itemValue) => handleInputChange('healthGoal', itemValue)}
+                                    >
+                                        <Picker.Item label="None" value="none" />
+                                        <Picker.Item label="Lose Weight" value="lose_weight" />
+                                        <Picker.Item label="Gain Weight" value="gain_weight" />
+                                    </Picker>
+                                </View>
+                                {tempProfile.healthGoal && tempProfile.healthGoal !== 'none' && (
+                                    <View style={styles.inputContainer}>
+                                        <Text style={styles.label}>Target Weight (kg)</Text>
+                                        <TextInput
+                                            style={styles.input}
+                                            placeholder="Target Weight (kg)"
+                                            keyboardType="numeric"
+                                            value={getValue(tempProfile.targetWeight)}
+                                            onChangeText={(text) => handleInputChange('targetWeight', parseFloat(text))}
+                                        />
+                                    </View>
+                                )}
+                                <View style={styles.separator} />
+                                <View style={styles.inputContainer}>
                                     <Text style={styles.label}>Chronic Diseases</Text>
                                     <MultiSelect
                                         items={chronicDiseasesList}
@@ -244,188 +289,70 @@ const ProfileScreen: React.FC = () => {
                                         submitButtonColor="#4CAF50"
                                         submitButtonText="Submit"
                                     />
-                                    <Text style={styles.label}>Health Goals</Text>
-                                    <Picker
-                                        selectedValue={profile.healthGoal}
-                                        style={styles.input}
-                                        onValueChange={(itemValue) => handleInputChange('healthGoal', itemValue)}
-                                    >
-                                        <Picker.Item label="None" value="none" />
-                                        <Picker.Item label="Lose Weight" value="lose_weight" />
-                                        <Picker.Item label="Gain Weight" value="gain_weight" />
-                                    </Picker>
-                                    {profile.healthGoal && profile.healthGoal !== 'none' && (
-                                        <TextInput
-                                            style={styles.input}
-                                            placeholder="Target Weight (kg)"
-                                            keyboardType="numeric"
-                                            value={getValue(profile.targetWeight)}
-                                            onChangeText={(text) => handleInputChange('targetWeight', parseFloat(text))}
-                                        />
-                                    )}
-                                    <TouchableOpacity style={styles.button} onPress={handleSaveProfile}>
-                                        <Text style={styles.buttonText}>Save</Text>
+                                </View>
+                                <TouchableOpacity style={styles.button} onPress={handleSaveProfile}>
+                                    <Text style={styles.buttonText}>Save</Text>
+                                </TouchableOpacity>
+                            </>
+                        ) : (
+                            <>
+                                {profileData.map((item) => (
+                                    <View key={item.key} style={styles.profileItem}>
+                                        <Text style={styles.profileLabel}>{item.key}:</Text>
+                                        <Text style={styles.profileValue}>{item.value} {item.category ? <Text style={item.categoryStyle}>({item.category})</Text> : null}</Text>
+                                    </View>
+                                ))}
+                                {profile.healthGoal && profile.targetWeight && (
+                                    <View style={styles.progressBarContainer}>
+                                        <Text style={styles.profileText}>
+                                            {progressDescription}
+                                        </Text>
+                                        <ProgressBar progress={progress} width={200} color="#4CAF50" />
+                                    </View>
+                                )}
+                                <TouchableOpacity style={styles.editButton} onPress={() => setEditMode(true)}>
+                                    <Text style={styles.buttonText}>Edit Profile</Text>
+                                </TouchableOpacity>
+                                {!profile.redeemed && (
+                                    <TouchableOpacity style={styles.editButton} onPress={openReferralModal}>
+                                        <Text style={styles.buttonText}>Enter New User Referral Code</Text>
                                     </TouchableOpacity>
-                                </>
-                            ) : (
-                                <>
-                                    {profileData.map((item) => (
-                                        <View key={item.key} style={styles.profileItem}>
-                                            <Text style={styles.profileLabel}>{item.key}:</Text>
-                                            <Text style={styles.profileValue}>{item.value} {item.category ? <Text style={item.categoryStyle}>({item.category})</Text> : null}</Text>
-                                        </View>
-                                    ))}
-                                    {profile.healthGoal && profile.targetWeight && (
-                                        <View style={styles.progressBarContainer}>
-                                            <Text style={styles.profileText}>
-                                                {progressDescription}
-                                            </Text>
-                                            <ProgressBar progress={progress} width={200} color="#4CAF50" />
-                                        </View>
-                                    )}
-                                    <TouchableOpacity style={styles.editButton} onPress={() => setEditMode(true)}>
-                                        <Text style={styles.buttonText}>Edit Profile</Text>
-                                    </TouchableOpacity>
-                                    {!profile.redeemed && (
-                                        <View style={styles.referralContainer}>
-                                            <TextInput
-                                                style={styles.input}
-                                                placeholder="Enter referral code"
-                                                value={referralCodeInput}
-                                                onChangeText={setReferralCodeInput}
-                                            />
-                                            <TouchableOpacity style={styles.redeemButton} onPress={handleRedeemReferral}>
-                                                <Text style={styles.buttonText}>Redeem Referral Points</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    )}
-                                </>
-                            )}
+                                )}
+                            </>
+                        )}
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+
+            {/* Referral Code Modal */}
+            <Modal
+                visible={isReferralModalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={closeReferralModal}
+            >
+                <View style={styles.modalBackground}>
+                    <View style={styles.modalContainer}>
+                        <Text style={styles.modalTitle}>Enter New User Referral Code</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Referral Code"
+                            value={referralCodeInput}
+                            onChangeText={setReferralCodeInput}
+                        />
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity style={styles.button} onPress={handleRedeemReferral}>
+                                <Text style={styles.buttonText}>Submit</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={closeReferralModal}>
+                                <Text style={styles.buttonText}>Cancel</Text>
+                            </TouchableOpacity>
                         </View>
-                    </>
-                )}
-                renderItem={({ item }) => null} // Avoid repeating items
-                ListFooterComponent={() => (
-                    editMode && profile.healthGoal && profile.targetWeight && (
-                        <View style={styles.progressBarContainer}>
-                            <Text style={styles.profileText}>
-                                {progressDescription}
-                            </Text>
-                            <ProgressBar progress={progress} width={200} color="#4CAF50" />
-                        </View>
-                    )
-                )}
-            />
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 };
 
 export default ProfileScreen;
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#E6F5E1',
-    },
-    profileLogo: {
-        width: 100,
-        height: 150,
-        alignSelf: 'center',
-    },
-    profileContainer: {
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        padding: 20,
-        marginHorizontal: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 5,
-    },
-    welcomeText: {
-        fontSize: 25,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        textAlign: 'center',
-        color: '#4CAF50',
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        padding: 10,
-        marginVertical: 10,
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginTop: 10,
-        color: '#4CAF50',
-    },
-    button: {
-        backgroundColor: '#4CAF50',
-        padding: 15,
-        borderRadius: 5,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginVertical: 10,
-    },
-    buttonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-    },
-    editButton: {
-        backgroundColor: '#4CAF50',
-        padding: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginVertical: 10,
-    },
-    redeemButton: {
-        backgroundColor: '#A5D6A7',
-        padding: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginVertical: 10,
-    },
-    referralContainer: {
-        marginVertical: 20,
-    },
-    profileItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: 5,
-    },
-    profileLabel: {
-        fontWeight: 'bold',
-        color: '#4CAF50',
-        fontSize: 20,
-
-    },
-    profileValue: {
-        color: '#333',
-        fontSize: 20,
-
-    },
-    profileText: {
-        fontSize: 18,
-        color: '#333',
-        marginVertical: 5,
-    },
-    progressBarContainer: {
-        alignItems: 'center',
-        marginVertical: 20,
-    },
-    bmiLow: {
-        color: '#FFA726',
-    },
-    bmiNormal: {
-        color: '#66BB6A',
-    },
-    bmiHigh: {
-        color: '#EF5350',
-    },
-});

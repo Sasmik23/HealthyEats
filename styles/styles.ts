@@ -98,12 +98,6 @@ export const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 10,
   },
-  expandButton: {
-    backgroundColor: "#4CAF50", // Light green background
-    padding: 10,
-    borderRadius: 10,
-    alignItems: "center",
-  },
   submitButtonText: {
     color: "#FFFFFF",
     fontSize: 18,
@@ -558,5 +552,17 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+  },
+  expandButton: {
+    backgroundColor: "#4CAF50",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    margin: 20,
+  },
+  expandButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
