@@ -1,9 +1,9 @@
 {
   "auth": {
-    "user_pool_id": "ap-southeast-1_e2ICkR3Ae",
+    "user_pool_id": "ap-southeast-1_zqV7WSNWc",
     "aws_region": "ap-southeast-1",
-    "user_pool_client_id": "6ahkhjdrdbrora0sq6v9acgv2h",
-    "identity_pool_id": "ap-southeast-1:4d8fc6c9-adc3-42d7-8921-3eaa7ce56c17",
+    "user_pool_client_id": "483aqthp9q7mletngtmrkhl15n",
+    "identity_pool_id": "ap-southeast-1:7e085ecb-5d4b-4fc5-ad4f-3384e5922ef3",
     "mfa_methods": [],
     "standard_required_attributes": [
       "email"
@@ -25,9 +25,9 @@
     "unauthenticated_identities_enabled": true
   },
   "data": {
-    "url": "https://uf6f25vx4fb23onnquurwjxaha.appsync-api.ap-southeast-1.amazonaws.com/graphql",
+    "url": "https://x5focf26ure7bgb3apzavpbmye.appsync-api.ap-southeast-1.amazonaws.com/graphql",
     "aws_region": "ap-southeast-1",
-    "api_key": "da2-xwoyzstu45beploqx6iixmszke",
+    "api_key": "da2-b2rmy5qttfeqzngzhkdxnmahqm",
     "default_authorization_type": "API_KEY",
     "authorization_types": [
       "AMAZON_COGNITO_USER_POOLS",
@@ -583,12 +583,12 @@
   },
   "storage": {
     "aws_region": "ap-southeast-1",
-    "bucket_name": "amplify-healthyeats-mikhi-amplifyteamdrivebucket28-m5ybqnejqpkr"
+    "bucket_name": "amplify-d2ads7vb3bnzm3-ma-amplifyteamdrivebucket28-bq6sv0vtvjh9"
   },
   "version": "1",
   "custom": {
     "API": {
-      "endpoint": "https://qba39qtdml.execute-api.ap-southeast-1.amazonaws.com/"
+      "endpoint": "https://4k5plzfxs3.execute-api.ap-southeast-1.amazonaws.com/"
     }
   }
 }
