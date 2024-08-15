@@ -259,6 +259,7 @@ export const styles = StyleSheet.create({
     borderTopColor: "#ddd",
     paddingVertical: 10,
     height: 60, // Adjust height if needed
+    paddingBottom: 5,
   },
   container: {
     flex: 1,
@@ -274,10 +275,15 @@ export const styles = StyleSheet.create({
   filterContainer: {
     width: "90%",
     alignSelf: "center",
-    backgroundColor: "#f1f1f1",
-    padding: 10,
+    backgroundColor: "#fff",
     borderRadius: 10,
+    padding: 20,
     marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
   },
   filterLabel: {
     fontSize: 16,
@@ -444,8 +450,11 @@ export const styles = StyleSheet.create({
     marginTop: 10,
   },
   headerText: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "bold",
+    textAlign: "center",
+    color: "#4CAF50",
+    marginVertical: 10,
   },
   ingredientList: {
     paddingBottom: 20,
@@ -564,5 +573,12 @@ export const styles = StyleSheet.create({
   expandButtonText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#013220",
+    flex: 1,
+    textAlign: "center",
   },
 });

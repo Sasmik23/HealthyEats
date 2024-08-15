@@ -333,7 +333,7 @@ const ProfileScreen: React.FC = () => {
             >
                 <View style={styles.modalBackground}>
                     <View style={styles.modalContainer}>
-                        <Text style={styles.modalTitle}>Enter New User Referral Code</Text>
+                        <Text style={styles.modalTitle}>Enter the new user's code that was referred by you </Text>
                         <TextInput
                             style={styles.input}
                             placeholder="Referral Code"

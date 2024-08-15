@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, View, Text, FlatList, TouchableOpacity, ListRenderItem, Image, Alert, Platform } from 'react-native';
-import { styles } from '../styles/styles';
+import { locatorStyles as styles } from './LocatorScreenStyles';
 import { useAuthenticator } from '@aws-amplify/ui-react-native';
 import Geolocation, { GeoPosition } from 'react-native-geolocation-service';
 import Modal from 'react-native-modal';
@@ -181,7 +181,9 @@ const LocatorScreen: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.locatorContainer}>
+            <Text style={styles.headerText}>Healthier Choice Eateries || HPB ✓</Text>
             <View style={styles.filterContainer}>
+                <Text style={styles.filterLabel}>Filter by Distance:</Text>
                 <Picker
                     selectedValue={maxDistance}
                     style={styles.picker}

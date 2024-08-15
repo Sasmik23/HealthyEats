@@ -219,7 +219,7 @@ const RecipesScreen: React.FC = () => {
                         <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
                             <Ionicons name="search" size={24} color="white" />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
+                        <TouchableOpacity style={styles.searchButton} onPress={handleReset}>
                             <Text style={styles.resetButtonText}>Reset</Text>
                         </TouchableOpacity>
                     </View>

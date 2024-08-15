@@ -60,10 +60,12 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginVertical: 10,
+    marginHorizontal: 5,
   },
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+    alignSelf: "center",
   },
   editButton: {
     backgroundColor: "#4CAF50",
@@ -138,6 +140,7 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
+    textAlign: "center",
   },
   modalButtons: {
     flexDirection: "row",

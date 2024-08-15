@@ -61,15 +61,14 @@ const IngredientsScreen: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.container}>
+            <Text style={styles.headerText}>Healthier Choice Ingredients</Text>
+
             <TextInput
                 style={styles.searchInput}
                 placeholder="Search ingredients..."
                 value={searchQuery}
                 onChangeText={setSearchQuery}
             />
-            <View style={styles.listHeader}>
-                <Text style={styles.headerText}>Ingredients</Text>
-            </View>
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
