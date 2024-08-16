@@ -37,6 +37,7 @@ const ProfileScreen: React.FC = () => {
                 const { data: profileData, errors } = await client.models.Profile.list({
                     filter: { userId: { eq: user?.signInDetails?.loginId } },
                 });
+
                 if (errors) {
                     console.error('Error fetching profile:', errors);
                 } else if (profileData.length > 0) {
@@ -44,12 +45,26 @@ const ProfileScreen: React.FC = () => {
                     setProfile(fetchedProfile);
                     setChronicDiseases(fetchedProfile.chronicDisease ? fetchedProfile.chronicDisease.split(',') : []);
                     setTempProfile(fetchedProfile);
+
+                    // Check for an existing referral code
                     if (!fetchedProfile.referralCode) {
                         const updatedProfile = { ...fetchedProfile, referralCode: generateReferralCode() };
                         await client.models.Profile.update(updatedProfile);
                         setProfile(updatedProfile);
                         setTempProfile(updatedProfile);
                     }
+                } else {
+                    // If no profile is found, create a new one with a referral code
+                    const newProfile = {
+                        id: uuidv4(),
+                        userId: user?.signInDetails?.loginId,
+                        referralCode: generateReferralCode(),
+                        points: 0,
+                        redeemed: false,
+                    };
+                    await client.models.Profile.create(newProfile);
+                    setProfile(newProfile);
+                    setTempProfile(newProfile);
                 }
             } catch (error) {
                 console.error('Error fetching profile:', error);
@@ -60,6 +75,7 @@ const ProfileScreen: React.FC = () => {
 
         fetchProfile();
     }, [user]);
+
 
     const handleSaveProfile = async () => {
         const { age, weight, height, targetWeight } = tempProfile;
@@ -189,8 +205,8 @@ const ProfileScreen: React.FC = () => {
 
     const profileData = [
         { key: 'Age', value: profile.age || 'N/A' },
-        { key: 'Weight', value: profile.weight || 'N/A' },
-        { key: 'Height', value: profile.height || 'N/A' },
+        { key: 'Weight (kg)', value: profile.weight || 'N/A' },
+        { key: 'Height (cm)', value: profile.height || 'N/A' },
         { key: 'Target Weight', value: profile.targetWeight || 'N/A' },
         {
             key: 'BMI',
@@ -315,7 +331,7 @@ const ProfileScreen: React.FC = () => {
                                 </TouchableOpacity>
                                 {!profile.redeemed && (
                                     <TouchableOpacity style={styles.editButton} onPress={openReferralModal}>
-                                        <Text style={styles.buttonText}>Enter New User Referral Code</Text>
+                                        <Text style={styles.buttonText}>Redeem Referral Code Points</Text>
                                     </TouchableOpacity>
                                 )}
                             </>
@@ -333,7 +349,7 @@ const ProfileScreen: React.FC = () => {
             >
                 <View style={styles.modalBackground}>
                     <View style={styles.modalContainer}>
-                        <Text style={styles.modalTitle}>Enter the new user's code that was referred by you </Text>
+                        <Text style={styles.modalTitle}>Enter the referral code of the user who recommended you this app!</Text>
                         <TextInput
                             style={styles.input}
                             placeholder="Referral Code"
