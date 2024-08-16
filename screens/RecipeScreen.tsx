@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, View, Text, FlatList, TextInput, TouchableOpacity, ScrollView, Button } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { ActivityIndicator, SafeAreaView, View, Text, FlatList, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import Modal from 'react-native-modal';
 import { Picker } from '@react-native-picker/picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { styles } from '../styles/styles';
+import { styles } from './RecipeScreenStyles';
 import { useAuthenticator } from '@aws-amplify/ui-react-native';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../amplify/data/resource';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Recipe {
     id: string;
@@ -28,6 +29,19 @@ interface Recipe {
     };
 }
 
+interface Profile {
+    id: string | null;
+    userId: string | null;
+    profilePicture: string | null;
+    age: number | null;
+    weight: number | null;
+    height: number | null;
+    bmi: number | null;
+    chronicDisease: string | null;
+    healthGoal: string | null;
+    targetWeight: number | null;
+}
+
 const client = generateClient<Schema>();
 
 const RecipesScreen: React.FC = () => {
@@ -42,38 +56,74 @@ const RecipesScreen: React.FC = () => {
     const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [isFilterExpanded, setIsFilterExpanded] = useState<boolean>(true);
+    const [userProfile, setUserProfile] = useState<Profile | null>(null);
+    const [recommendedRecipe, setRecommendedRecipe] = useState<Recipe | null>(null);
 
-    useEffect(() => {
-        const fetchRecipes = async () => {
-            setLoading(true);
-            try {
-                const result = await client.models.Recipe.list();
-                if (result.errors) {
-                    console.error('Errors fetching recipes:', result.errors);
-                    return;
-                }
+    // Fetch user profile and recipes
+    const fetchProfileAndRecipes = async () => {
+        setLoading(true);
+        try {
+            // Fetch User Profile
+            const profileResult = await client.models.Profile.list({
+                filter: { userId: { eq: user?.signInDetails?.loginId } },
+            });
+            const profileData = profileResult.data[0];
 
-                const allRecipes = result.data.map((recipe: any) => ({
-                    id: recipe.id,
-                    dishName: recipe.dishName,
-                    cuisine: recipe.cuisine,
-                    ingredients: recipe.ingredients,
-                    steps: recipe.steps,
-                    healthy_cooking_tips: recipe.healthy_cooking_tips,
-                    nutrition_information: recipe.nutrition_information,
-                }));
-
-                setRecipes(allRecipes as Recipe[]);
-                setFilteredRecipes(allRecipes as Recipe[]);
-            } catch (error) {
-                console.error('Error fetching recipes:', error);
-            } finally {
-                setLoading(false);
+            if (profileData) {
+                const userProfile: Profile = {
+                    id: profileData.id ?? '',
+                    userId: profileData.userId ?? '',
+                    profilePicture: profileData.profilePicture ?? '',
+                    age: profileData.age ?? 0,
+                    weight: profileData.weight ?? 0,
+                    height: profileData.height ?? 0,
+                    bmi: profileData.bmi ?? 0,
+                    chronicDisease: profileData.chronicDisease ?? '',
+                    healthGoal: profileData.healthGoal ?? '',
+                    targetWeight: profileData.targetWeight ?? 0,
+                };
+                setUserProfile(userProfile);
             }
-        };
 
-        fetchRecipes();
-    }, []);
+            // Fetch Recipes
+            const recipeResult = await client.models.Recipe.list();
+            if (recipeResult.errors) {
+                console.error('Errors fetching recipes:', recipeResult.errors);
+                return;
+            }
+
+            const allRecipes = recipeResult.data.map((recipe: any) => ({
+                id: recipe.id,
+                dishName: recipe.dishName,
+                cuisine: recipe.cuisine,
+                ingredients: recipe.ingredients,
+                steps: recipe.steps,
+                healthy_cooking_tips: recipe.healthy_cooking_tips,
+                nutrition_information: recipe.nutrition_information,
+            }));
+
+            setRecipes(allRecipes as Recipe[]);
+        } catch (error) {
+            console.error('Error fetching profile or recipes:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Reset state when screen comes into focus
+    useFocusEffect(
+        useCallback(() => {
+            // Reset state
+            handleReset();
+
+            // Fetch profile and recipes
+            fetchProfileAndRecipes();
+
+            return () => {
+                // Clean up if needed
+            };
+        }, [])
+    );
 
     const handleSearch = () => {
         setLoading(true);
@@ -104,6 +154,14 @@ const RecipesScreen: React.FC = () => {
 
             setFilteredRecipes(filtered);
             setIsFilterExpanded(false); // Collapse filter section after search
+
+            // Determine the recommended recipe
+            if (userProfile) {
+                const bestRecipe = getBestRecipeForUser(filtered, userProfile);
+                setRecommendedRecipe(bestRecipe);
+            } else {
+                setRecommendedRecipe(null);
+            }
         } catch (error) {
             console.error('Error filtering recipes:', error);
         } finally {
@@ -116,7 +174,45 @@ const RecipesScreen: React.FC = () => {
         setSearchIngredient('');
         setSelectedCuisine('');
         setIngredients([]);
-        setFilteredRecipes(recipes);
+        setFilteredRecipes([]);
+        setRecommendedRecipe(null); // Reset the recommended recipe as well
+        setIsFilterExpanded(true);  // Expand the filter section after reset
+    };
+
+    const getBestRecipeForUser = (recipes: Recipe[], profile: Profile): Recipe | null => {
+        let bestRecipe: Recipe | null = null;
+        let bestScore = Infinity;
+
+        recipes.forEach(recipe => {
+            let score = 0;
+
+            if (profile.healthGoal === 'gain_weight') {
+                score = -parseFloat(recipe.nutrition_information.protein);
+            } else if (profile.healthGoal === 'lose_weight') {
+                score = parseFloat(recipe.nutrition_information.energy);
+            }
+
+            const chronicDisease = profile.chronicDisease ?? ''; // Default to empty string if null
+
+            if (chronicDisease.includes('htn')) {
+                score += parseFloat(recipe.nutrition_information.sodium);
+            }
+
+            if (chronicDisease.includes('hld')) {
+                score += parseFloat(recipe.nutrition_information.cholesterol);
+            }
+
+            if (chronicDisease.includes('dm')) {
+                score += parseFloat(recipe.nutrition_information.carbohydrate);
+            }
+
+            if (score < bestScore) {
+                bestScore = score;
+                bestRecipe = recipe;
+            }
+        });
+
+        return bestRecipe;
     };
 
     const renderItem = ({ item }: { item: Recipe }) => (
@@ -234,7 +330,27 @@ const RecipesScreen: React.FC = () => {
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
                 <FlatList
-                    data={filteredRecipes}
+                    ListHeaderComponent={recommendedRecipe && (
+                        <TouchableOpacity
+                            style={styles.recommendedContainer}
+                            onPress={() => {
+                                setSelectedRecipe(recommendedRecipe);
+                                setIsModalVisible(true);
+                            }}
+                        >
+                            <Text style={styles.recommendedTitle}>Recommended Recipe</Text>
+                            <Text style={styles.recipeName}>{recommendedRecipe.dishName}</Text>
+                            <Text style={styles.cuisineText}>{recommendedRecipe.cuisine}</Text>
+                            <Text style={styles.reasonText}>
+                                {userProfile?.healthGoal === 'gain_weight' && 'High protein to help you gain weight\n'}
+                                {userProfile?.healthGoal === 'lose_weight' && 'Low energy to help you lose weight\n'}
+                                {userProfile?.chronicDisease?.includes('htn') && 'Low sodium for your hypertension\n'}
+                                {userProfile?.chronicDisease?.includes('hld') && 'Low cholesterol for your hyperlipidemia\n'}
+                                {userProfile?.chronicDisease?.includes('dm') && 'Low carbohydrates for your diabetes\n'}
+                            </Text>
+                        </TouchableOpacity>
+                    )}
+                    data={filteredRecipes.filter(recipe => recipe.id !== recommendedRecipe?.id)}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.recipeList}
@@ -248,4 +364,3 @@ const RecipesScreen: React.FC = () => {
 };
 
 export default RecipesScreen;
-

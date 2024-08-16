@@ -23,6 +23,7 @@ export const locatorStyles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 5,
+    marginBottom: 10,
   },
   filterLabel: {
     fontSize: 16,

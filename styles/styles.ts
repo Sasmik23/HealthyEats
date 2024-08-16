@@ -581,4 +581,29 @@ export const styles = StyleSheet.create({
     flex: 1,
     textAlign: "center",
   },
+
+  recommendedContainer: {
+    backgroundColor: "#E6F5E1", // Light green background for emphasis
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  recommendedTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#4CAF50", // Green color for the title
+    textAlign: "center",
+  },
+  reasonText: {
+    fontSize: 14,
+    color: "#666",
+    fontStyle: "italic",
+    marginTop: 10,
+  },
 });
